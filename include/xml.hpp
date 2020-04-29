@@ -146,11 +146,8 @@ namespace xml
         }
     } // namespace utf8
 
-    class Data;
-
     class Node final
     {
-        friend Data;
     public:
         enum class Type
         {
