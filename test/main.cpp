@@ -33,6 +33,68 @@ namespace
         bool result = true;
     };
 
+    void testComments()
+    {
+        xml::Data d = xml::parse("<!--test--><root/>", true, true, true);
+
+        auto first = d.begin();
+        if (first == d.end())
+            throw TestError("Expected a node");
+
+        xml::Node& node = *first;
+        if (node.getType() != xml::Node::Type::Comment)
+            throw TestError("Expected a comment node");
+
+        if (node.getValue() != "test")
+            throw TestError("Wrong value");
+    }
+
+    void testProcessingInstruction()
+    {
+        xml::Data d = xml::parse("<?xml version=\"1.0\"?><root/>", true, true, true);
+
+        auto first = d.begin();
+        if (first == d.end())
+            throw TestError("Expected a node");
+
+        xml::Node& node = *first;
+        if (node.getType() != xml::Node::Type::ProcessingInstruction)
+            throw TestError("Expected a processing instruction node");
+
+        if (node.getValue() != "xml")
+            throw TestError("Wrong value");
+
+        if (node["version"] != "1.0")
+            throw TestError("Wrong attribute");
+    }
+
+    void testText()
+    {
+        xml::Data d = xml::parse("<root>text</root>", true, true, true);
+
+        auto first = d.begin();
+        if (first == d.end())
+            throw TestError("Expected a node");
+
+        xml::Node& node = *first;
+        if (node.getType() != xml::Node::Type::Tag)
+            throw TestError("Expected a tag node");
+
+        if (node.getValue() != "root")
+            throw TestError("Wrong value");
+
+        auto firstChild = node.begin();
+        if (firstChild == node.end())
+            throw TestError("Expected a child node");
+
+        xml::Node& child = *firstChild;
+        if (child.getType() != xml::Node::Type::Text)
+            throw TestError("Expected a text node");
+
+        if (child.getValue() != "text")
+            throw TestError("Wrong value");
+    }
+
     void testEncoding()
     {
         xml::Data d;
@@ -72,6 +134,9 @@ namespace
 int main()
 {
     TestRunner testRunner;
+    testRunner.run(testComments);
+    testRunner.run(testProcessingInstruction);
+    testRunner.run(testText);
     testRunner.run(testEncoding);
 
     if (testRunner.getResult())
