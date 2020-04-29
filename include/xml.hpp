@@ -343,36 +343,6 @@ namespace xml
 
             return result;
         }
-
-        inline void encodeString(std::string& data,
-                                 const std::u32string& str)
-        {
-            for (const char32_t c : str)
-            {
-                switch (c)
-                {
-                    case '"':
-                        data.insert(data.end(), {'&', 'q', 'u', 'o', 't', ';'});
-                        break;
-                    case '&':
-                        data.insert(data.end(), {'&', 'a', 'm', 'p', ';'});
-                        break;
-                    case '\'':
-                        data.insert(data.end(), {'&', 'a', 'p', 'o', 's', ';'});
-                        break;
-                    case '<':
-                        data.insert(data.end(), {'&', 'l', 't', ';'});
-                        break;
-                    case '>':
-                        data.insert(data.end(), {'&', 'g', 't', ';'});
-                        break;
-                    default:
-                        const std::string encoded = utf8::fromUtf32(c);
-                        data.insert(data.end(), encoded.begin(), encoded.end());
-                        break;
-                }
-            }
-        }
     }
 
     class Data;
@@ -410,16 +380,20 @@ namespace xml
 
         Type getType() const noexcept { return type; }
 
-        const std::string& getValue() const noexcept { return value; }
-        void setValue(const std::string& newValue) { value = newValue; }
-
-        const std::vector<Node>& getChildren() const noexcept { return children; }
-
         std::vector<Node>::iterator begin() { return children.begin(); }
         std::vector<Node>::iterator end() { return children.end(); }
 
         std::vector<Node>::const_iterator begin() const { return children.begin(); }
         std::vector<Node>::const_iterator end() const { return children.end(); }
+
+        const std::vector<Node>& getChildren() const noexcept { return children; }
+        void pushBack(const Node& node) { children.push_back(node); }
+
+        const std::string& getValue() const noexcept { return value; }
+        void setValue(const std::string& newValue) { value = newValue; }
+
+        const std::map<std::string, std::string>& getAttributes() const noexcept { return attributes; }
+        void setAttributes(const std::map<std::string, std::string>& newAttributes) { attributes = newAttributes; }
 
     protected:
         void parse(std::u32string::const_iterator& iterator,
@@ -671,83 +645,6 @@ namespace xml
             }
         }
 
-        void encode(std::string& data) const
-        {
-            switch (type)
-            {
-                case Node::Type::Comment:
-                    data.insert(data.end(), {'<', '!', '-', '-'});
-                    data.insert(data.end(), value.begin(), value.end());
-                    data.insert(data.end(), {'-', '-', '>'});
-                    break;
-                case Node::Type::CData:
-                    data.insert(data.end(), {'<', '!', '[', 'C', 'D', 'A', 'T', 'A', '['});
-                    data.insert(data.end(), value.begin(), value.end());
-                    data.insert(data.end(), {']', ']', '>'});
-                    break;
-                case Node::Type::TypeDeclaration:
-                    throw ParseError("Type declarations are not supported");
-                case Node::Type::ProcessingInstruction:
-                    data.insert(data.end(), {'<', '?'});
-                    data.insert(data.end(), value.begin(), value.end());
-
-                    if (attributes.empty())
-                        data.insert(data.end(), ' ');
-                    else
-                    {
-                        for (const auto& attribute : attributes)
-                        {
-                            data.insert(data.end(), attribute.first.begin(), attribute.first.end());
-                            data.insert(data.end(), {'=', '"'});
-                            encodeString(data, utf8::toUtf32(attribute.second));
-                            data.insert(data.end(), '"');
-                        }
-                    }
-
-                    data.insert(data.end(), {'?', '>'});
-                    break;
-                case Node::Type::Tag:
-                    data.insert(data.end(), '<');
-                    data.insert(data.end(), value.begin(), value.end());
-
-                    if (attributes.empty())
-                        data.insert(data.end(), ' ');
-                    else
-                    {
-                        for (const auto& attribute : attributes)
-                        {
-                            data.insert(data.end(), attribute.first.begin(), attribute.first.end());
-                            data.insert(data.end(), {'=', '"'});
-                            data.insert(data.end(), attribute.second.begin(), attribute.second.end());
-                            data.insert(data.end(), '"');
-                        }
-                    }
-
-                    if (children.empty())
-                        data.insert(data.end(), {'/', '>'});
-                    else
-                    {
-                        data.insert(data.end(), '>');
-
-                        for (const Node& node : children)
-                            node.encode(data);
-
-                        data.insert(data.end(), {'<', '/'});
-                        data.insert(data.end(), value.begin(), value.end());
-                        data.insert(data.end(), '>');
-                    }
-                    break;
-                case Node::Type::Text:
-                    encodeString(data, utf8::toUtf32(value));
-                    break;
-                default:
-                    throw ParseError("Unknown node type");
-            }
-
-            for (const Node& node : children)
-                node.encode(data);
-        }
-
     private:
         Type type;
 
@@ -776,7 +673,7 @@ namespace xml
              bool preserveComments = false,
              bool preserveProcessingInstructions = false)
         {
-            byteOrderMark = hasByteOrderMark(begin, end);
+            bool byteOrderMark = hasByteOrderMark(begin, end);
 
             const std::u32string str = utf8::toUtf32(byteOrderMark ? begin + 3 : begin, end);
             auto iterator = str.begin();
@@ -813,22 +710,28 @@ namespace xml
                 throw ParseError("No root tag found");
         }
 
-        std::string encode() const
+        std::vector<Node>::iterator begin()
         {
-            std::string result;
-
-            if (byteOrderMark) result.assign(std::begin(utf8ByteOrderMark), std::end(utf8ByteOrderMark));
-
-            for (const Node& node : children)
-                node.encode(result);
-
-            return result;
+            return children.begin();
         }
 
-        bool hasByteOrderMark() const noexcept { return byteOrderMark; }
-        void setByteOrderMark(const bool newByteOrderMark) noexcept { byteOrderMark = newByteOrderMark; }
+        std::vector<Node>::iterator end()
+        {
+            return children.end();
+        }
+
+        std::vector<Node>::const_iterator begin() const
+        {
+            return children.begin();
+        }
+
+        std::vector<Node>::const_iterator end() const
+        {
+            return children.end();
+        }
 
         const std::vector<Node>& getChildren() const noexcept { return children; }
+        void pushBack(const Node& node) { children.push_back(node); }
 
     private:
         template <class Iterator>
@@ -840,7 +743,6 @@ namespace xml
             return true;
         }
 
-        bool byteOrderMark = false;
         std::vector<Node> children;
     };
 
@@ -859,6 +761,8 @@ namespace xml
             {
                 return {};
             }
+
+        private:
         };
 
         return Parser::parse(begin, end);
@@ -877,18 +781,139 @@ namespace xml
         return parse(std::begin(data), std::end(data));
     }
 
-    inline std::string encode(const Data& data)
+    inline std::string encode(const Data& data, bool byteOrderMark = false)
     {
         class Encoder final
         {
         public:
-            static std::string encode(const Data& data)
+            static std::string encode(const Data& data, bool byteOrderMark)
             {
-                return std::string{};
+                std::string result;
+                if (byteOrderMark) result.assign(std::begin(utf8ByteOrderMark),
+                                                 std::end(utf8ByteOrderMark));
+
+                for (const Node& node : data)
+                    encode(node, result);
+
+                return result;
+            }
+
+        private:
+            static void encode(const std::string& str,
+                               std::string& result)
+            {
+                for (const char c : str)
+                {
+                    switch (c)
+                    {
+                        case '"':
+                            result.insert(result.end(), {'&', 'q', 'u', 'o', 't', ';'});
+                            break;
+                        case '&':
+                            result.insert(result.end(), {'&', 'a', 'm', 'p', ';'});
+                            break;
+                        case '\'':
+                            result.insert(result.end(), {'&', 'a', 'p', 'o', 's', ';'});
+                            break;
+                        case '<':
+                            result.insert(result.end(), {'&', 'l', 't', ';'});
+                            break;
+                        case '>':
+                            result.insert(result.end(), {'&', 'g', 't', ';'});
+                            break;
+                        default:
+                            result.insert(result.end(), c);
+                            break;
+                    }
+                }
+            }
+
+            static void encode(const Node& node, std::string& result)
+            {
+                switch (node.getType())
+                {
+                    case Node::Type::Comment:
+                    {
+                        const auto& value = node.getValue();
+                        result.insert(result.end(), {'<', '!', '-', '-'});
+                        result.insert(result.end(), value.begin(), value.end());
+                        result.insert(result.end(), {'-', '-', '>'});
+                        break;
+                    }
+                    case Node::Type::CData:
+                    {
+                        const auto& value = node.getValue();
+                        result.insert(result.end(), {'<', '!', '[', 'C', 'D', 'A', 'T', 'A', '['});
+                        result.insert(result.end(), value.begin(), value.end());
+                        result.insert(result.end(), {']', ']', '>'});
+                        break;
+                    }
+                    case Node::Type::TypeDeclaration:
+                        throw ParseError("Type declarations are not supported");
+                    case Node::Type::ProcessingInstruction:
+                    {
+                        const auto& value = node.getValue();
+                        result.insert(result.end(), {'<', '?'});
+                        result.insert(result.end(), value.begin(), value.end());
+
+                        const auto& attributes = node.getAttributes();
+                        for (const auto& attribute : attributes)
+                        {
+                            result.insert(result.end(), ' ');
+                            result.insert(result.end(), attribute.first.begin(), attribute.first.end());
+                            result.insert(result.end(), {'=', '"'});
+                            encode(attribute.second, result);
+                            result.insert(result.end(), '"');
+                        }
+
+                        result.insert(result.end(), {'?', '>'});
+                        break;
+                    }
+                    case Node::Type::Tag:
+                    {
+                        const auto& value = node.getValue();
+                        result.insert(result.end(), '<');
+                        result.insert(result.end(), value.begin(), value.end());
+
+                        const auto& attributes = node.getAttributes();
+                        for (const auto& attribute : attributes)
+                        {
+                            result.insert(result.end(), ' ');
+                            result.insert(result.end(), attribute.first.begin(), attribute.first.end());
+                            result.insert(result.end(), {'=', '"'});
+                            result.insert(result.end(), attribute.second.begin(), attribute.second.end());
+                            result.insert(result.end(), '"');
+                        }
+
+                        const auto& children = node.getChildren();
+                        if (children.empty())
+                            result.insert(result.end(), {'/', '>'});
+                        else
+                        {
+                            result.insert(result.end(), '>');
+
+                            for (const Node& child : children)
+                                encode(child, result);
+
+                            result.insert(result.end(), {'<', '/'});
+                            result.insert(result.end(), value.begin(), value.end());
+                            result.insert(result.end(), '>');
+                        }
+                        break;
+                    }
+                    case Node::Type::Text:
+                    {
+                        const auto& value = node.getValue();
+                        encode(value, result);
+                        break;
+                    }
+                    default:
+                        throw ParseError("Unknown node type");
+                }
             }
         };
 
-        return Encoder::encode(data);
+        return Encoder::encode(data, byteOrderMark);
     }
 } // namespace xml
 

@@ -33,12 +33,23 @@ namespace
         bool result = true;
     };
 
+    void testEncoding()
+    {
+        xml::Data d;
+        xml::Node n(xml::Node::Type::Tag);
+        n.setValue("n");
+        n.setAttributes({{"a", "a"}, {"b", "b"}});
+        d.pushBack(n);
 
+        if (xml::encode(d) != "<n a=\"a\" b=\"b\"/>")
+            throw TestError("Wrong encoded result");
+    }
 }
 
 int main()
 {
     TestRunner testRunner;
+    testRunner.run(testEncoding);
 
     if (testRunner.getResult())
         std::cout << "Success\n";
