@@ -36,12 +36,35 @@ namespace
     void testEncoding()
     {
         xml::Data d;
+        xml::Node p(xml::Node::Type::ProcessingInstruction);
+        p.setValue("xml");
+        p.setAttributes({{"version", "1.0"}, {"encoding", "utf-8"}});
+        d.pushBack(p);
+
         xml::Node n(xml::Node::Type::Tag);
         n.setValue("n");
         n.setAttributes({{"a", "a"}, {"b", "b"}});
+
+        xml::Node c1(xml::Node::Type::Tag);
+        c1.setValue("c1");
+        c1.setAttributes({{"c", "c"}});
+
+        xml::Node c2(xml::Node::Type::Tag);
+        c2.setValue("c2");
+        c2.setAttributes({{"dd", "dd"}});
+
+        xml::Node t(xml::Node::Type::Text);
+        t.setValue("text");
+
+        c1.pushBack(t);
+        n.pushBack(c1);
+        n.pushBack(c2);
         d.pushBack(n);
 
-        if (xml::encode(d) != "<n a=\"a\" b=\"b\"/>")
+        if (xml::encode(d) != "<?xml encoding=\"utf-8\" version=\"1.0\"?><n a=\"a\" b=\"b\"><c1 c=\"c\">text</c1><c2 dd=\"dd\"/></n>")
+            throw TestError("Wrong encoded result");
+
+        if (xml::encode(d, true) != "<?xml encoding=\"utf-8\" version=\"1.0\"?>\n<n a=\"a\" b=\"b\">\n\t<c1 c=\"c\">\n\t\ttext\n\t</c1>\n\t<c2 dd=\"dd\"/>\n</n>\n")
             throw TestError("Wrong encoded result");
     }
 }
