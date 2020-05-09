@@ -42,7 +42,7 @@ namespace
             throw TestError("Expected a node");
 
         xml::Node& node = *first;
-        if (node.getType() != xml::Node::Type::Comment)
+        if (node.getType() != xml::Node::Type::comment)
             throw TestError("Expected a comment node");
 
         if (node.getValue() != "test")
@@ -58,7 +58,7 @@ namespace
             throw TestError("Expected a node");
 
         xml::Node& node = *first;
-        if (node.getType() != xml::Node::Type::ProcessingInstruction)
+        if (node.getType() != xml::Node::Type::processingInstruction)
             throw TestError("Expected a processing instruction node");
 
         if (node.getValue() != "xml")
@@ -77,7 +77,7 @@ namespace
             throw TestError("Expected a node");
 
         xml::Node& node = *first;
-        if (node.getType() != xml::Node::Type::Tag)
+        if (node.getType() != xml::Node::Type::tag)
             throw TestError("Expected a tag node");
 
         if (node.getValue() != "root")
@@ -88,7 +88,7 @@ namespace
             throw TestError("Expected a child node");
 
         xml::Node& child = *firstChild;
-        if (child.getType() != xml::Node::Type::Text)
+        if (child.getType() != xml::Node::Type::text)
             throw TestError("Expected a text node");
 
         if (child.getValue() != "text")
@@ -98,24 +98,24 @@ namespace
     void testEncoding()
     {
         xml::Data d;
-        xml::Node p(xml::Node::Type::ProcessingInstruction);
+        xml::Node p(xml::Node::Type::processingInstruction);
         p.setValue("xml");
         p.setAttributes({{"version", "1.0"}, {"encoding", "utf-8"}});
         d.pushBack(p);
 
-        xml::Node n(xml::Node::Type::Tag);
+        xml::Node n(xml::Node::Type::tag);
         n.setValue("n");
         n.setAttributes({{"a", "a"}, {"b", "b"}});
 
-        xml::Node c1(xml::Node::Type::Tag);
+        xml::Node c1(xml::Node::Type::tag);
         c1.setValue("c1");
         c1.setAttributes({{"c", "c"}});
 
-        xml::Node c2(xml::Node::Type::Tag);
+        xml::Node c2(xml::Node::Type::tag);
         c2.setValue("c2");
         c2.setAttributes({{"dd", "dd"}});
 
-        xml::Node t(xml::Node::Type::Text);
+        xml::Node t(xml::Node::Type::text);
         t.setValue("text");
 
         c1.pushBack(t);

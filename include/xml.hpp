@@ -151,17 +151,17 @@ namespace xml
     public:
         enum class Type
         {
-            Comment,
-            CData,
-            TypeDeclaration,
-            ProcessingInstruction,
-            Tag,
-            Text
+            comment,
+            cData,
+            typeDeclaration,
+            processingInstruction,
+            tag,
+            text
         };
 
         Node() = default;
         Node(Type initType): type(initType) {}
-        Node(const std::string& val): type(Type::Text), value(val) {}
+        Node(const std::string& val): type(Type::text), value(val) {}
 
         Node& operator=(Type newType) noexcept
         {
@@ -171,7 +171,7 @@ namespace xml
 
         Node& operator=(const std::string& val)
         {
-            type = Type::Text;
+            type = Type::text;
             value = val;
             return *this;
         }
@@ -280,12 +280,12 @@ namespace xml
                                       preserveComments,
                                       preserveProcessingInstructions);
 
-                    if ((preserveComments || node.getType() != Node::Type::Comment) &&
-                        (preserveProcessingInstructions || node.getType() != Node::Type::ProcessingInstruction))
+                    if ((preserveComments || node.getType() != Node::Type::comment) &&
+                        (preserveProcessingInstructions || node.getType() != Node::Type::processingInstruction))
                     {
                         result.pushBack(node);
 
-                        if (node.getType() == Node::Type::Tag)
+                        if (node.getType() == Node::Type::tag)
                         {
                             if (rootTagFound)
                                 throw ParseError("Multiple root tags found");
@@ -540,7 +540,7 @@ namespace xml
                             if (*iterator != '-') // <!--
                                 throw ParseError("Expected a comment");
 
-                            result = Node::Type::Comment;
+                            result = Node::Type::comment;
 
                             std::string value;
                             for (;;)
@@ -584,7 +584,7 @@ namespace xml
                             if (*iterator != '[')
                                 throw ParseError("Expected a left bracket");
 
-                            result = Node::Type::CData;
+                            result = Node::Type::cData;
 
                             std::string value;
                             for (;;)
@@ -610,7 +610,7 @@ namespace xml
                     else if (*iterator == '?') // <?
                     {
                         ++iterator;
-                        result = Node::Type::ProcessingInstruction;
+                        result = Node::Type::processingInstruction;
                         result.setValue(parseName(iterator, end));
 
                         for (;;)
@@ -650,7 +650,7 @@ namespace xml
                     }
                     else // <
                     {
-                        result = Node::Type::Tag;
+                        result = Node::Type::tag;
                         result.setValue(parseName(iterator, end));
 
                         bool tagClosed = false;
@@ -733,8 +733,8 @@ namespace xml
                                 {
                                     Node node = parse(iterator, end, preserveWhitespaces, preserveComments, preserveProcessingInstructions);
 
-                                    if ((preserveComments || node.getType() != Node::Type::Comment) &&
-                                        (preserveProcessingInstructions || node.getType() != Node::Type::ProcessingInstruction))
+                                    if ((preserveComments || node.getType() != Node::Type::comment) &&
+                                        (preserveProcessingInstructions || node.getType() != Node::Type::processingInstruction))
                                         result.pushBack(node);
                                 }
                             }
@@ -743,7 +743,7 @@ namespace xml
                 }
                 else
                 {
-                    result = Node::Type::Text;
+                    result = Node::Type::text;
 
                     std::string value;
                     for (;;)
@@ -848,7 +848,7 @@ namespace xml
             {
                 switch (node.getType())
                 {
-                    case Node::Type::Comment:
+                    case Node::Type::comment:
                     {
                         const auto& value = node.getValue();
                         result.insert(result.end(), {'<', '!', '-', '-'});
@@ -856,7 +856,7 @@ namespace xml
                         result.insert(result.end(), {'-', '-', '>'});
                         break;
                     }
-                    case Node::Type::CData:
+                    case Node::Type::cData:
                     {
                         const auto& value = node.getValue();
                         result.insert(result.end(), {'<', '!', '[', 'C', 'D', 'A', 'T', 'A', '['});
@@ -864,9 +864,9 @@ namespace xml
                         result.insert(result.end(), {']', ']', '>'});
                         break;
                     }
-                    case Node::Type::TypeDeclaration:
+                    case Node::Type::typeDeclaration:
                         throw ParseError("Type declarations are not supported");
-                    case Node::Type::ProcessingInstruction:
+                    case Node::Type::processingInstruction:
                     {
                         const auto& value = node.getValue();
                         result.insert(result.end(), {'<', '?'});
@@ -885,7 +885,7 @@ namespace xml
                         result.insert(result.end(), {'?', '>'});
                         break;
                     }
-                    case Node::Type::Tag:
+                    case Node::Type::tag:
                     {
                         const auto& value = node.getValue();
                         result.insert(result.end(), '<');
@@ -923,7 +923,7 @@ namespace xml
                         }
                         break;
                     }
-                    case Node::Type::Text:
+                    case Node::Type::text:
                     {
                         const auto& value = node.getValue();
                         encode(value, result);
