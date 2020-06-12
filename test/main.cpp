@@ -129,6 +129,31 @@ namespace
         if (xml::encode(d, true) != "<?xml encoding=\"utf-8\" version=\"1.0\"?>\n<n a=\"a\" b=\"b\">\n\t<c1 c=\"c\">\n\t\ttext\n\t</c1>\n\t<c2 dd=\"dd\"/>\n</n>\n")
             throw TestError("Wrong encoded result");
     }
+
+    enum class byte: unsigned char {};
+
+    void testByte()
+    {
+        std::vector<byte> data = {
+            static_cast<byte>('<'),
+            static_cast<byte>('r'),
+            static_cast<byte>('/'),
+            static_cast<byte>('>')
+        };
+
+        xml::Data d = xml::parse(data, true, true, true);
+
+        auto first = d.begin();
+        if (first == d.end())
+            throw TestError("Expected a node");
+
+        xml::Node& node = *first;
+        if (node.getType() != xml::Node::Type::tag)
+            throw TestError("Expected a tag node");
+
+        if (node.getValue() != "r")
+            throw TestError("Wrong value");
+    }
 }
 
 int main()
@@ -138,6 +163,7 @@ int main()
     testRunner.run(testProcessingInstruction);
     testRunner.run(testText);
     testRunner.run(testEncoding);
+    testRunner.run(testByte);
 
     if (testRunner.getResult())
         std::cout << "Success\n";
