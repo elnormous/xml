@@ -69,7 +69,7 @@ namespace
         if (first == d.end())
             throw TestError("Expected a node");
 
-        xml::Node& node = *first;
+        auto& node = *first;
         if (node.getType() != xml::Node::Type::comment)
             throw TestError("Expected a comment node");
 
@@ -85,7 +85,7 @@ namespace
         if (first == d.end())
             throw TestError("Expected a node");
 
-        xml::Node& node = *first;
+        auto& node = *first;
         if (node.getType() != xml::Node::Type::processingInstruction)
             throw TestError("Expected a processing instruction node");
 
@@ -104,7 +104,7 @@ namespace
         if (first == d.end())
             throw TestError("Expected a node");
 
-        xml::Node& node = *first;
+        auto& node = *first;
         if (node.getType() != xml::Node::Type::tag)
             throw TestError("Expected a tag node");
 
@@ -115,11 +115,49 @@ namespace
         if (firstChild == node.end())
             throw TestError("Expected a child node");
 
-        xml::Node& child = *firstChild;
+        auto& child = *firstChild;
         if (child.getType() != xml::Node::Type::text)
             throw TestError("Expected a text node");
 
         if (child.getValue() != "text")
+            throw TestError("Wrong value");
+    }
+
+    void testEntities()
+    {
+        xml::Data d = xml::parse("<root test=\"&lt;\">&amp;</root>", true, true, true);
+
+        auto first = d.begin();
+        if (first == d.end())
+            throw TestError("Expected a node");
+
+        auto& node = *first;
+        if (node.getType() != xml::Node::Type::tag)
+            throw TestError("Expected a tag node");
+
+        if (node.getValue() != "root")
+            throw TestError("Wrong value");
+
+        auto firstAttribute = node.getAttributes().begin();
+        if (firstAttribute == node.getAttributes().end())
+            throw TestError("Expected an attribute");
+
+        auto& attribute = *firstAttribute;
+        if (attribute.first != "test")
+            throw TestError("Wrong attribute name");
+
+        if (attribute.second != "<")
+            throw TestError("Wrong attribute value");
+
+        auto firstChild = node.begin();
+        if (firstChild == node.end())
+            throw TestError("Expected a child node");
+
+        auto& child = *firstChild;
+        if (child.getType() != xml::Node::Type::text)
+            throw TestError("Expected a text node");
+
+        if (child.getValue() != "&")
             throw TestError("Wrong value");
     }
 
@@ -175,7 +213,7 @@ namespace
         if (first == d.end())
             throw TestError("Expected a node");
 
-        xml::Node& node = *first;
+        auto& node = *first;
         if (node.getType() != xml::Node::Type::tag)
             throw TestError("Expected a tag node");
 
@@ -190,6 +228,7 @@ int main(int argc, char* argv[])
     testRunner.run("testComments", testComments);
     testRunner.run("testProcessingInstruction", testProcessingInstruction);
     testRunner.run("testText", testText);
+    testRunner.run("testEntities", testEntities);
     testRunner.run("testEncoding", testEncoding);
     testRunner.run("testByte", testByte);
 
