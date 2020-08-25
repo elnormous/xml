@@ -15,21 +15,19 @@ namespace
     {
     public:
         TestRunner(int argc, char** argv) noexcept:
-            argumentCount(argc), arguments(argv)
-        {
-        }
-
+            argumentCount(argc), arguments(argv) {}
         TestRunner(const TestRunner&) = delete;
         TestRunner& operator=(const TestRunner&) = delete;
         ~TestRunner()
         {
-            if (result)
-                std::cout << "Success, total duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << "ms\n";
+            std::cout << "Finished tests: " << count << ", failed: " << failed << ", total duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << "ms\n";
         }
 
         template <class T, class ...Args>
         void run(const std::string& name, T test, Args ...args) noexcept
         {
+            ++count;
+
             for (int i = 1; i < argumentCount; ++i)
                 if (name == arguments[i]) break;
                 else if (i == argumentCount - 1) return;
@@ -47,17 +45,18 @@ namespace
             catch (const TestError& e)
             {
                 std::cerr << name << " failed: " << e.what() << '\n';
-                result = false;
+                ++failed;
             }
         }
 
-        bool getResult() const noexcept { return result; }
+        size_t getFailed() const noexcept { return failed; }
         std::chrono::steady_clock::duration getDuration() const noexcept { return duration; }
 
     private:
         int argumentCount;
         char** arguments;
-        bool result = true;
+        size_t count = 0;
+        size_t failed = 0;
         std::chrono::steady_clock::duration duration = std::chrono::milliseconds(0);
     };
 
@@ -232,5 +231,5 @@ int main(int argc, char* argv[])
     testRunner.run("testEncoding", testEncoding);
     testRunner.run("testByte", testByte);
 
-    return testRunner.getResult() ? EXIT_SUCCESS : EXIT_FAILURE;
+    return testRunner.getFailed() ? EXIT_FAILURE : EXIT_SUCCESS;
 }
