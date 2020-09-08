@@ -217,7 +217,7 @@ namespace xml
         void setAttributes(const std::map<std::string, std::string>& newAttributes) { attributes = newAttributes; }
 
     private:
-        Type type;
+        Type type = Type::tag;
         std::string value;
         std::map<std::string, std::string> attributes;
         std::vector<Node> children;
