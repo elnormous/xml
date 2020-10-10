@@ -67,9 +67,9 @@ TEST_CASE("Attributes", "[attributes]")
     REQUIRE(attribute.second == "t");
 }
 
-TEST_CASE("Entities", "[entities]")
+TEST_CASE("EntityReferences", "[entity_references]")
 {
-    const xml::Data d = xml::parse("<root test=\"&lt;\">&gt;&amp;</root>", true, true, true);
+    const xml::Data d = xml::parse("<root test=\"&lt;\">&gt;&amp;&apos;&quot;</root>", true, true, true);
 
     const auto first = d.begin();
     REQUIRE(first != d.end());
@@ -91,7 +91,7 @@ TEST_CASE("Entities", "[entities]")
 
     const auto& child = *firstChild;
     REQUIRE(child.getType() == xml::Node::Type::text);
-    REQUIRE(child.getValue() == ">&");
+    REQUIRE(child.getValue() == ">&'\"");
 }
 
 TEST_CASE("Encoding", "[encoding]")
