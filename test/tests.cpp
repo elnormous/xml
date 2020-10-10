@@ -129,6 +129,7 @@ TEST_CASE("Encoding", "[encoding]")
 TEST_CASE("IllegalCharacters", "[illegal_characters]")
 {
     REQUIRE_THROWS_AS(xml::parse("<root>&</root>", true, true, true), xml::ParseError);
+    REQUIRE_THROWS_AS(xml::parse("<root a=\"<\"></root>", true, true, true), xml::ParseError);
 }
 
 TEST_CASE("Byte", "[byte]")

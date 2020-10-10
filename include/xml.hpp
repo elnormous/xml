@@ -491,6 +491,9 @@ namespace xml
                     if (iterator == end)
                         throw ParseError("Unexpected end of data");
 
+                    if (*iterator == '<' || *iterator == '>')
+                        throw ParseError("Illegal character");
+
                     if (*iterator == quotes)
                     {
                         ++iterator;
