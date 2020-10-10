@@ -126,6 +126,11 @@ TEST_CASE("Encoding", "[encoding]")
     REQUIRE(xml::encode(d, true) == "<?xml encoding=\"utf-8\" version=\"1.0\"?>\n<n a=\"a\" b=\"b\">\n\t<c1 c=\"c\">\n\t\ttext\n\t</c1>\n\t<c2 dd=\"dd\"/>\n</n>\n");
 }
 
+TEST_CASE("IllegalCharacters", "[illegal_characters]")
+{
+    REQUIRE_THROWS_AS(xml::parse("<root>&</root>", true, true, true), xml::ParseError);
+}
+
 TEST_CASE("Byte", "[byte]")
 {
     const std::vector<std::byte> data = {
