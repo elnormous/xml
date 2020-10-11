@@ -329,7 +329,12 @@ namespace xml
                     (c >= 0x370 && c <= 0x37D) ||
                     (c >= 0x37F && c <= 0x1FFF) ||
                     (c >= 0x200C && c <= 0x200D) ||
-                    (c >= 0x2070 && c <= 0x218F);
+                    (c >= 0x2070 && c <= 0x218F) ||
+                    (c >= 0x2C00 && c <= 0x2FEF) ||
+                    (c >= 0x3001 && c <= 0xD7FF) ||
+                    (c >= 0xF900 && c <= 0xFDCF) ||
+                    (c >= 0xFDF0 && c <= 0xFFFD) ||
+                    (c >= 0x10000 && c <= 0xEFFFF);
             }
 
             static constexpr bool isNameChar(const char32_t c) noexcept
