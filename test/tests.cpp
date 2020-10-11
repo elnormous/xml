@@ -94,6 +94,33 @@ TEST_CASE("EntityReferences", "[entity_references]")
     REQUIRE(child.getValue() == ">&'\"");
 }
 
+TEST_CASE("CharacterReferences", "[character_references]")
+{
+    const xml::Data d = xml::parse("<root test=\"&#65;\">&#x42;</root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::tag);
+    REQUIRE(node.getValue() == "root");
+
+    const auto firstAttribute = node.getAttributes().begin();
+    REQUIRE(firstAttribute != node.getAttributes().end());
+
+    const auto& attribute = *firstAttribute;
+    REQUIRE(attribute.first == "test");
+
+    REQUIRE(attribute.second == "A");
+
+    const auto firstChild = node.begin();
+    REQUIRE(firstChild != node.end());
+
+    const auto& child = *firstChild;
+    REQUIRE(child.getType() == xml::Node::Type::text);
+    REQUIRE(child.getValue() == "B");
+}
+
 TEST_CASE("Encoding", "[encoding]")
 {
     xml::Data d;

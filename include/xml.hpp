@@ -424,19 +424,19 @@ namespace xml
 
                     if (value[1] == 'x') // hex value
                     {
-                        if (value.length() != 2 + 4)
+                        if (value.length() < 3)
                             throw ParseError("Invalid entity");
 
-                        for (std::size_t i = 0; i < 4; ++i)
+                        for (std::size_t i = 2; i < value.length(); ++i)
                         {
                             std::uint8_t code = 0;
 
-                            if (value[i + 2] >= '0' && value[i + 2] <= '9')
-                                code = static_cast<std::uint8_t>(value[i + 2]) - '0';
-                            else if (value[i + 2] >= 'a' && value[i + 2] <='f')
-                                code = static_cast<std::uint8_t>(value[i + 2]) - 'a' + 10;
-                            else if (value[i + 2] >= 'A' && value[i + 2] <='F')
-                                code = static_cast<std::uint8_t>(value[i + 2]) - 'A' + 10;
+                            if (value[i] >= '0' && value[i] <= '9')
+                                code = static_cast<std::uint8_t>(value[i]) - '0';
+                            else if (value[i] >= 'a' && value[i] <='f')
+                                code = static_cast<std::uint8_t>(value[i]) - 'a' + 10;
+                            else if (value[i] >= 'A' && value[i] <='F')
+                                code = static_cast<std::uint8_t>(value[i]) - 'A' + 10;
                             else
                                 throw ParseError("Invalid character code");
 
@@ -445,13 +445,10 @@ namespace xml
                     }
                     else
                     {
-                        if (value.length() != 1 + 4)
-                            throw ParseError("Invalid entity");
-
-                        for (std::size_t i = 0; i < 4; ++i)
+                        for (std::size_t i = 1; i < value.length(); ++i)
                         {
-                            const std::uint8_t code = (value[i + 1] >= '0' && value[i + 1] <= '9') ?
-                                static_cast<std::uint8_t>(value[i + 1]) - '0' :
+                            const std::uint8_t code = (value[i] >= '0' && value[i] <= '9') ?
+                                static_cast<std::uint8_t>(value[i]) - '0' :
                                 throw ParseError("Invalid character code");
 
                             c = c * 10 + code;
@@ -460,18 +457,21 @@ namespace xml
 
                     result = fromUtf32(c);
                 }
-                else if (value == "quot") // entity reference
-                    result = "\"";
-                else if (value == "amp")
-                    result = "&";
-                else if (value == "apos")
-                    result = "'";
-                else if (value == "lt")
-                    result = "<";
-                else if (value == "gt")
-                    result = ">";
-                else
-                    throw ParseError("Invalid entity");
+                else // entity reference
+                {
+                    if (value == "quot")
+                        result = "\"";
+                    else if (value == "amp")
+                        result = "&";
+                    else if (value == "apos")
+                        result = "'";
+                    else if (value == "lt")
+                        result = "<";
+                    else if (value == "gt")
+                        result = ">";
+                    else
+                        throw ParseError("Invalid entity");
+                }
 
                 return result;
             }
