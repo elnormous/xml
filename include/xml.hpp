@@ -385,8 +385,8 @@ namespace xml
                 return result;
             }
 
-            static std::string parseEntity(std::u32string::const_iterator& iterator,
-                                           std::u32string::const_iterator end)
+            static std::string parseReference(std::u32string::const_iterator& iterator,
+                                              std::u32string::const_iterator end)
             {
                 std::string result;
 
@@ -415,17 +415,7 @@ namespace xml
                 if (value.empty())
                     throw ParseError("Invalid entity");
 
-                if (value == "quot")
-                    result = "\"";
-                else if (value == "amp")
-                    result = "&";
-                else if (value == "apos")
-                    result = "'";
-                else if (value == "lt")
-                    result = "<";
-                else if (value == "gt")
-                    result = ">";
-                else if (value[0] == '#')
+                if (value[0] == '#') // char reference
                 {
                     if (value.length() < 2)
                         throw ParseError("Invalid entity");
@@ -470,6 +460,16 @@ namespace xml
 
                     result = fromUtf32(c);
                 }
+                else if (value == "quot") // entity reference
+                    result = "\"";
+                else if (value == "amp")
+                    result = "&";
+                else if (value == "apos")
+                    result = "'";
+                else if (value == "lt")
+                    result = "<";
+                else if (value == "gt")
+                    result = ">";
                 else
                     throw ParseError("Invalid entity");
 
@@ -503,7 +503,7 @@ namespace xml
                     }
                     else if (*iterator == '&')
                     {
-                        std::string entity = parseEntity(iterator, end);
+                        std::string entity = parseReference(iterator, end);
                         result += entity;
                     }
                     else if (*iterator == '<')
@@ -760,7 +760,7 @@ namespace xml
                             break;
                         else if (*iterator == '&')
                         {
-                            std::string entity = parseEntity(iterator, end);
+                            std::string entity = parseReference(iterator, end);
                             value += entity;
                         }
                         else
