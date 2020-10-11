@@ -491,9 +491,6 @@ namespace xml
                     if (iterator == end)
                         throw ParseError("Unexpected end of data");
 
-                    if (*iterator == '<' || *iterator == '>')
-                        throw ParseError("Illegal character");
-
                     if (*iterator == quotes)
                     {
                         ++iterator;
@@ -504,6 +501,8 @@ namespace xml
                         std::string entity = parseEntity(iterator, end);
                         result += entity;
                     }
+                    else if (*iterator == '<')
+                        throw ParseError("Illegal character");
                     else
                     {
                         result += fromUtf32(*iterator);
