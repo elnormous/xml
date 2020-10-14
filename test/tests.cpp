@@ -88,11 +88,7 @@ TEST_CASE("EntityReferences", "[entity_references]")
     const xml::Data d = xml::parse("<root test=\"&lt;\">&gt;&amp;&apos;&quot;</root>", true, true, true);
 
     const auto first = d.begin();
-    REQUIRE(first != d.end());
-
     const auto& node = *first;
-    REQUIRE(node.getType() == xml::Node::Type::tag);
-    REQUIRE(node.getValue() == "root");
 
     const auto firstAttribute = node.getAttributes().begin();
     REQUIRE(firstAttribute != node.getAttributes().end());
@@ -115,11 +111,7 @@ TEST_CASE("CharacterReferences", "[character_references]")
     const xml::Data d = xml::parse("<root test=\"&#65;\">&#x42;</root>", true, true, true);
 
     const auto first = d.begin();
-    REQUIRE(first != d.end());
-
     const auto& node = *first;
-    REQUIRE(node.getType() == xml::Node::Type::tag);
-    REQUIRE(node.getValue() == "root");
 
     const auto firstAttribute = node.getAttributes().begin();
     REQUIRE(firstAttribute != node.getAttributes().end());
