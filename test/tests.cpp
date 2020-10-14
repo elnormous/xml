@@ -15,6 +15,30 @@ TEST_CASE("Comments", "[comments]")
     REQUIRE(node.getValue() == "test");
 }
 
+TEST_CASE("Empty element", "[empty_element]")
+{
+    const xml::Data d = xml::parse("<root/>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::tag);
+    REQUIRE(node.getValue() == "root");
+}
+
+TEST_CASE("End tag", "[end_tag]")
+{
+    const xml::Data d = xml::parse("<root></root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::tag);
+    REQUIRE(node.getValue() == "root");
+}
+
 TEST_CASE("ProcessingInstruction", "[processing_instructions]")
 {
     const xml::Data d = xml::parse("<?xml version=\"1.0\"?><root/>", true, true, true);
@@ -33,11 +57,7 @@ TEST_CASE("Text", "[text]")
     const xml::Data d = xml::parse("<root>text</root>", true, true, true);
 
     const auto first = d.begin();
-    REQUIRE(first != d.end());
-
     const auto& node = *first;
-    REQUIRE(node.getType() == xml::Node::Type::tag);
-    REQUIRE(node.getValue() == "root");
 
     const auto firstChild = node.begin();
     REQUIRE(firstChild != node.end());
@@ -52,11 +72,7 @@ TEST_CASE("Attributes", "[attributes]")
     const xml::Data d = xml::parse("<root test=\"t\" test2=\"1\"></root>", true, true, true);
 
     const auto first = d.begin();
-    REQUIRE(first != d.end());
-
     const auto& node = *first;
-    REQUIRE(node.getType() == xml::Node::Type::tag);
-    REQUIRE(node.getValue() == "root");
 
     const auto firstAttribute = node.getAttributes().begin();
     REQUIRE(firstAttribute != node.getAttributes().end());
