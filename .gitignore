@@ -10,3 +10,6 @@ test/x64
 test/test.VC.db
 test/test.VC.VC.opendb
 test/test.vcxproj.user
+*.d
+*.gcda
+*.gcno
