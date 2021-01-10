@@ -350,11 +350,8 @@ namespace xml
             static void skipWhitespaces(std::u32string::const_iterator& iterator,
                                         std::u32string::const_iterator end)
             {
-                while (iterator != end)
-                    if (isWhitespace(*iterator))
-                        ++iterator;
-                    else
-                        break;
+                while (iterator != end && isWhitespace(*iterator))
+                    ++iterator;
             }
 
             static std::string parseName(std::u32string::const_iterator& iterator,
