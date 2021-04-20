@@ -78,7 +78,7 @@ namespace xml
         {
             auto i = attributes.find(attribute);
             if (i == attributes.end())
-                throw RangeError("Invalid attribute");
+                throw RangeError{"Invalid attribute"};
             return i->second;
         }
         std::string& operator[](const std::string& attribute) noexcept { return attributes[attribute]; }
@@ -160,28 +160,28 @@ namespace xml
                     else if ((cp >> 5) == 0x6) // length = 2
                     {
                         if (++i == end)
-                            throw ParseError("Invalid UTF-8 string");
+                            throw ParseError{"Invalid UTF-8 string"};
                         cp = ((cp << 6) & 0x7FF) + (static_cast<char32_t>(*i) & 0x3F);
                     }
                     else if ((cp >> 4) == 0xE) // length = 3
                     {
                         if (++i == end)
-                            throw ParseError("Invalid UTF-8 string");
+                            throw ParseError{"Invalid UTF-8 string"};
                         cp = ((cp << 12) & 0xFFFF) + (((static_cast<char32_t>(*i) & 0xFF) << 6) & 0x0FFF);
                         if (++i == end)
-                            throw ParseError("Invalid UTF-8 string");
+                            throw ParseError{"Invalid UTF-8 string"};
                         cp += static_cast<char32_t>(*i) & 0x3F;
                     }
                     else if ((cp >> 3) == 0x1E) // length = 4
                     {
                         if (++i == end)
-                            throw ParseError("Invalid UTF-8 string");
+                            throw ParseError{"Invalid UTF-8 string"};
                         cp = ((cp << 18) & 0x1FFFFF) + (((static_cast<char32_t>(*i) & 0xFF) << 12) & 0x3FFFF);
                         if (++i == end)
-                            throw ParseError("Invalid UTF-8 string");
+                            throw ParseError{"Invalid UTF-8 string"};
                         cp += ((static_cast<char32_t>(*i) & 0xFF) << 6) & 0x0FFF;
                         if (++i == end)
-                            throw ParseError("Invalid UTF-8 string");
+                            throw ParseError{"Invalid UTF-8 string"};
                         cp += static_cast<char32_t>(*i) & 0x3F;
                     }
 
@@ -287,7 +287,7 @@ namespace xml
                         if (node.getType() == Node::Type::tag)
                         {
                             if (rootTagFound)
-                                throw ParseError("Multiple root tags found");
+                                throw ParseError{"Multiple root tags found"};
                             else
                                 rootTagFound = true;
                         }
@@ -295,7 +295,7 @@ namespace xml
                 }
 
                 if (!rootTagFound)
-                    throw ParseError("No root tag found");
+                    throw ParseError{"No root tag found"};
 
                 return result;
             }
@@ -358,15 +358,15 @@ namespace xml
                 std::string result;
 
                 if (iterator == end)
-                    throw ParseError("Unexpected end of data");
+                    throw ParseError{"Unexpected end of data"};
 
                 if (!isNameStartChar(*iterator))
-                    throw ParseError("Invalid name start");
+                    throw ParseError{"Invalid name start"};
 
                 for (;;)
                 {
                     if (iterator == end)
-                        throw ParseError("Unexpected end of data");
+                        throw ParseError{"Unexpected end of data"};
 
                     if (!isNameChar(*iterator))
                         break;
@@ -386,17 +386,17 @@ namespace xml
                 std::string result;
 
                 if (iterator == end)
-                    throw ParseError("Unexpected end of data");
+                    throw ParseError{"Unexpected end of data"};
 
                 if (*iterator != '&')
-                    throw ParseError("Expected an ampersand");
+                    throw ParseError{"Expected an ampersand"};
 
                 std::string value;
 
                 for (;;)
                 {
                     if (++iterator == end)
-                        throw ParseError("Unexpected end of data");
+                        throw ParseError{"Unexpected end of data"};
 
                     if (*iterator == ';')
                     {
@@ -408,19 +408,19 @@ namespace xml
                 }
 
                 if (value.empty())
-                    throw ParseError("Invalid entity");
+                    throw ParseError{"Invalid entity"};
 
                 if (value[0] == '#') // char reference
                 {
                     if (value.length() < 2)
-                        throw ParseError("Invalid entity");
+                        throw ParseError{"Invalid entity"};
 
                     char32_t c = 0;
 
                     if (value[1] == 'x') // hex value
                     {
                         if (value.length() < 3)
-                            throw ParseError("Invalid entity");
+                            throw ParseError{"Invalid entity"};
 
                         for (std::size_t i = 2; i < value.length(); ++i)
                         {
@@ -433,7 +433,7 @@ namespace xml
                             else if (value[i] >= 'A' && value[i] <='F')
                                 code = static_cast<std::uint8_t>(value[i]) - 'A' + 10;
                             else
-                                throw ParseError("Invalid character code");
+                                throw ParseError{"Invalid character code"};
 
                             c = (c << 4) | code;
                         }
@@ -444,7 +444,7 @@ namespace xml
                         {
                             const std::uint8_t code = (value[i] >= '0' && value[i] <= '9') ?
                                 static_cast<std::uint8_t>(value[i]) - '0' :
-                                throw ParseError("Invalid character code");
+                                throw ParseError{"Invalid character code"};
 
                             c = c * 10 + code;
                         }
@@ -465,7 +465,7 @@ namespace xml
                     else if (value == "gt")
                         result = ">";
                     else
-                        throw ParseError("Invalid entity");
+                        throw ParseError{"Invalid entity"};
                 }
 
                 return result;
@@ -477,10 +477,10 @@ namespace xml
                 std::string result;
 
                 if (iterator == end)
-                    throw ParseError("Unexpected end of data");
+                    throw ParseError{"Unexpected end of data"};
 
                 if (*iterator != '"' && *iterator != '\'')
-                    throw ParseError("Expected quotes");
+                    throw ParseError{"Expected quotes"};
 
                 const auto quotes = *iterator;
 
@@ -489,7 +489,7 @@ namespace xml
                 for (;;)
                 {
                     if (iterator == end)
-                        throw ParseError("Unexpected end of data");
+                        throw ParseError{"Unexpected end of data"};
 
                     if (*iterator == quotes)
                     {
@@ -502,7 +502,7 @@ namespace xml
                         result += entity;
                     }
                     else if (*iterator == '<')
-                        throw ParseError("Illegal character");
+                        throw ParseError{"Illegal character"};
                     else
                     {
                         result += fromUtf32(*iterator);
@@ -522,25 +522,25 @@ namespace xml
                 Node result;
 
                 if (iterator == end)
-                    throw ParseError("Unexpected end of data");
+                    throw ParseError{"Unexpected end of data"};
 
                 if (*iterator == '<')
                 {
                     if (++iterator == end)
-                        throw ParseError("Unexpected end of data");
+                        throw ParseError{"Unexpected end of data"};
 
                     if (*iterator == '!') // <!
                     {
                         if (++iterator == end)
-                            throw ParseError("Unexpected end of data");
+                            throw ParseError{"Unexpected end of data"};
 
                         if (*iterator == '-') // <!-
                         {
                             if (++iterator == end)
-                                throw ParseError("Unexpected end of data");
+                                throw ParseError{"Unexpected end of data"};
 
                             if (*iterator != '-') // <!--
-                                throw ParseError("Expected a comment");
+                                throw ParseError{"Expected a comment"};
 
                             result = Node::Type::comment;
 
@@ -548,7 +548,7 @@ namespace xml
                             for (;;)
                             {
                                 if (std::distance(++iterator, end) < 3)
-                                    throw ParseError("Unexpected end of data");
+                                    throw ParseError{"Unexpected end of data"};
 
                                 if (*iterator == '-')
                                 {
@@ -562,7 +562,7 @@ namespace xml
                                             break;
                                         }
                                         else
-                                            throw ParseError("Unexpected double-hyphen inside comment");
+                                            throw ParseError{"Unexpected double-hyphen inside comment"};
                                     }
                                 }
 
@@ -578,13 +578,13 @@ namespace xml
                             name = parseName(iterator, end);
 
                             if (name != "CDATA")
-                                throw ParseError("Expected CDATA");
+                                throw ParseError{"Expected CDATA"};
 
                             if (iterator == end)
-                                throw ParseError("Unexpected end of data");
+                                throw ParseError{"Unexpected end of data"};
 
                             if (*iterator != '[')
-                                throw ParseError("Expected a left bracket");
+                                throw ParseError{"Expected a left bracket"};
 
                             result = Node::Type::characterData;
 
@@ -592,7 +592,7 @@ namespace xml
                             for (;;)
                             {
                                 if (std::distance(++iterator, end) < 3)
-                                    throw ParseError("Unexpected end of data");
+                                    throw ParseError{"Unexpected end of data"};
 
                                 if (*iterator == ']' &&
                                     *(iterator + 1) == ']' &&
@@ -607,7 +607,7 @@ namespace xml
                             result.setValue(value);
                         }
                         else
-                            throw ParseError("Type declarations are not supported");
+                            throw ParseError{"Type declarations are not supported"};
                     }
                     else if (*iterator == '?') // <?
                     {
@@ -620,15 +620,15 @@ namespace xml
                             skipWhitespaces(iterator, end);
 
                             if (iterator == end)
-                                throw ParseError("Unexpected end of data");
+                                throw ParseError{"Unexpected end of data"};
 
                             if (*iterator == '?')
                             {
                                 if (++iterator == end)
-                                    throw ParseError("Unexpected end of data");
+                                    throw ParseError{"Unexpected end of data"};
 
                                 if (*iterator != '>') // ?>
-                                    throw ParseError("Expected a right angle bracket");
+                                    throw ParseError{"Expected a right angle bracket"};
 
                                 ++iterator;
                                 break;
@@ -639,10 +639,10 @@ namespace xml
                             skipWhitespaces(iterator, end);
 
                             if (iterator == end)
-                                throw ParseError("Unexpected end of data");
+                                throw ParseError{"Unexpected end of data"};
 
                             if (*iterator != '=')
-                                throw ParseError("Expected an equal sign");
+                                throw ParseError{"Expected an equal sign"};
 
                             ++iterator;
 
@@ -662,7 +662,7 @@ namespace xml
                             skipWhitespaces(iterator, end);
 
                             if (iterator == end)
-                                throw ParseError("Unexpected end of data");
+                                throw ParseError{"Unexpected end of data"};
 
                             if (*iterator == '>')
                             {
@@ -672,10 +672,10 @@ namespace xml
                             else if (*iterator == '/')
                             {
                                 if (++iterator == end)
-                                    throw ParseError("Unexpected end of data");
+                                    throw ParseError{"Unexpected end of data"};
 
                                 if (*iterator != '>') // />
-                                    throw ParseError("Expected a right angle bracket");
+                                    throw ParseError{"Expected a right angle bracket"};
 
                                 tagClosed = true;
                                 ++iterator;
@@ -688,10 +688,10 @@ namespace xml
                             skipWhitespaces(iterator, end);
 
                             if (iterator == end)
-                                throw ParseError("Unexpected end of data");
+                                throw ParseError{"Unexpected end of data"};
 
                             if (*iterator != '=')
-                                throw ParseError("Expected an equal sign");
+                                throw ParseError{"Expected an equal sign"};
 
                             ++iterator;
 
@@ -707,7 +707,7 @@ namespace xml
                                 if (!preserveWhitespaces) skipWhitespaces(iterator, end);
 
                                 if (iterator == end)
-                                    throw ParseError("Unexpected end of data");
+                                    throw ParseError{"Unexpected end of data"};
 
                                 if (*iterator == '<' &&
                                     iterator + 1 != end &&
@@ -717,13 +717,13 @@ namespace xml
                                     ++iterator; // skip the slash
 
                                     if (std::string tag = parseName(iterator, end); tag != result.getValue())
-                                        throw ParseError("Tag not closed properly");
+                                        throw ParseError{"Tag not closed properly"};
 
                                     if (iterator == end)
-                                        throw ParseError("Unexpected end of data");
+                                        throw ParseError{"Unexpected end of data"};
 
                                     if (*iterator != '>')
-                                        throw ParseError("Expected a right angle bracket");
+                                        throw ParseError{"Expected a right angle bracket"};
 
                                     ++iterator;
 
@@ -871,7 +871,7 @@ namespace xml
                         break;
                     }
                     case Node::Type::typeDeclaration:
-                        throw ParseError("Type declarations are not supported");
+                        throw ParseError{"Type declarations are not supported"};
                     case Node::Type::processingInstruction:
                     {
                         const auto& value = node.getValue();
@@ -935,7 +935,7 @@ namespace xml
                         break;
                     }
                     default:
-                        throw ParseError("Unknown node type");
+                        throw ParseError{"Unknown node type"};
                 }
             }
         };
