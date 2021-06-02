@@ -3,6 +3,7 @@
 #ifndef XML_HPP
 #define XML_HPP
 
+#include <array>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -133,7 +134,7 @@ namespace xml
 
     inline namespace detail
     {
-        constexpr std::uint8_t utf8ByteOrderMark[] = {0xEF, 0xBB, 0xBF};
+        constexpr std::array<std::uint8_t, 3> utf8ByteOrderMark = {0xEF, 0xBB, 0xBF};
     }
 
     template <class Iterator>
@@ -303,8 +304,8 @@ namespace xml
         private:
             static bool hasByteOrderMark(Iterator begin, Iterator end) noexcept
             {
-                for (auto i = std::begin(utf8ByteOrderMark); i != std::end(utf8ByteOrderMark); ++i)
-                    if (begin == end || static_cast<std::uint8_t>(*begin) != *i)
+                for (const auto b : utf8ByteOrderMark)
+                    if (begin == end || static_cast<std::uint8_t>(*begin) != b)
                         return false;
                     else
                         ++begin;
@@ -808,8 +809,8 @@ namespace xml
             static std::string encode(const Data& data, bool whitespaces, bool byteOrderMark)
             {
                 std::string result;
-                if (byteOrderMark) result.assign(std::begin(utf8ByteOrderMark),
-                                                 std::end(utf8ByteOrderMark));
+                if (byteOrderMark) result.assign(utf8ByteOrderMark.begin(),
+                                                 utf8ByteOrderMark.end());
 
                 for (const Node& node : data)
                 {
