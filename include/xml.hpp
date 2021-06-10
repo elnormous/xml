@@ -896,12 +896,12 @@ namespace xml
                         result.insert(result.end(), value.begin(), value.end());
 
                         const auto& attributes = node.getAttributes();
-                        for (const auto& [key, value] : attributes)
+                        for (const auto& [key, attributeValue] : attributes)
                         {
                             result.insert(result.end(), ' ');
                             result.insert(result.end(), key.begin(), key.end());
                             result.insert(result.end(), {'=', '"'});
-                            encode(value, result);
+                            encode(attributeValue, result);
                             result.insert(result.end(), '"');
                         }
 
