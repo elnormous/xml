@@ -25,11 +25,11 @@ namespace xml
         using std::runtime_error::runtime_error;
     };
 
+    using Attributes = std::map<std::string, std::string, std::less<>>;
+
     class Node final
     {
     public:
-        using Attributes = std::map<std::string, std::string, std::less<>>;
-
         enum class Type
         {
             comment,
@@ -74,6 +74,7 @@ namespace xml
         {
             return children.begin();
         }
+
         std::vector<Node>::const_iterator end() const noexcept
         {
             return children.end();
@@ -234,7 +235,8 @@ namespace xml
                 return result;
             }
 
-            static std::string fromUtf32(std::u32string::const_iterator begin, std::u32string::const_iterator end)
+            static std::string fromUtf32(std::u32string::const_iterator begin,
+                                         std::u32string::const_iterator end)
             {
                 std::string result;
 
