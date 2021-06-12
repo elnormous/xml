@@ -103,10 +103,10 @@ namespace xml
         const auto& getChildren() const noexcept { return children; }
         void pushBack(const Node& node) { children.push_back(node); }
 
-        const std::string& getValue() const noexcept { return value; }
+        const auto& getValue() const noexcept { return value; }
         void setValue(const std::string& newValue) { value = newValue; }
 
-        const Attributes& getAttributes() const noexcept { return attributes; }
+        const auto& getAttributes() const noexcept { return attributes; }
         void setAttributes(const Attributes& newAttributes) { attributes = newAttributes; }
 
     private:
