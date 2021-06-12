@@ -279,7 +279,7 @@ namespace xml
             {
                 bool byteOrderMark = hasByteOrderMark(begin, end);
 
-                const std::u32string str = toUtf32(byteOrderMark ? begin + 3 : begin, end);
+                const auto str = toUtf32(byteOrderMark ? begin + 3 : begin, end);
                 auto iterator = str.begin();
                 bool rootTagFound = false;
 
@@ -291,10 +291,10 @@ namespace xml
 
                     if (iterator == str.end()) break;
 
-                    Node node = parse(iterator, str.end(),
-                                      preserveWhitespaces,
-                                      preserveComments,
-                                      preserveProcessingInstructions);
+                    const auto node = parse(iterator, str.end(),
+                                            preserveWhitespaces,
+                                            preserveComments,
+                                            preserveProcessingInstructions);
 
                     if ((preserveComments || node.getType() != Node::Type::comment) &&
                         (preserveProcessingInstructions || node.getType() != Node::Type::processingInstruction))
@@ -515,7 +515,7 @@ namespace xml
                     }
                     else if (*iterator == '&')
                     {
-                        std::string entity = parseReference(iterator, end);
+                        const auto entity = parseReference(iterator, end);
                         result += entity;
                     }
                     else if (*iterator == '<')
@@ -651,7 +651,7 @@ namespace xml
                                 break;
                             }
 
-                            std::string attribute = parseName(iterator, end);
+                            const auto attribute = parseName(iterator, end);
 
                             skipWhitespaces(iterator, end);
 
@@ -699,8 +699,7 @@ namespace xml
                                 break;
                             }
 
-                            std::string attribute;
-                            attribute = parseName(iterator, end);
+                            const auto attribute = parseName(iterator, end);
 
                             skipWhitespaces(iterator, end);
 
@@ -733,7 +732,7 @@ namespace xml
                                     ++iterator; // skip the left angle bracket
                                     ++iterator; // skip the slash
 
-                                    if (std::string tag = parseName(iterator, end); tag != result.getValue())
+                                    if (const auto tag = parseName(iterator, end); tag != result.getValue())
                                         throw ParseError{"Tag not closed properly"};
 
                                     if (iterator == end)
@@ -770,7 +769,7 @@ namespace xml
                             break;
                         else if (*iterator == '&')
                         {
-                            std::string entity = parseReference(iterator, end);
+                            const auto entity = parseReference(iterator, end);
                             value += entity;
                         }
                         else
