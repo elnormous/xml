@@ -60,34 +60,35 @@ namespace xml
         Type getType() const noexcept { return type; }
         void setType(Type newType) noexcept { type = newType; }
 
-        std::vector<Node>::iterator begin() noexcept
+        auto begin() noexcept
         {
             return children.begin();
         }
 
-        std::vector<Node>::iterator end() noexcept
+        auto end() noexcept
         {
             return children.end();
         }
 
-        std::vector<Node>::const_iterator begin() const noexcept
+        auto begin() const noexcept
         {
             return children.begin();
         }
 
-        std::vector<Node>::const_iterator end() const noexcept
+        auto end() const noexcept
         {
             return children.end();
         }
 
-        const std::string& operator[](std::string_view attribute) const
+        const auto& operator[](std::string_view attribute) const
         {
             if (const auto iterator = attributes.find(attribute); iterator != attributes.end())
                 return iterator->second;
             else
                 throw RangeError{"Invalid attribute"};
         }
-        std::string& operator[](std::string_view attribute) noexcept
+
+        auto& operator[](std::string_view attribute) noexcept
         {
             if (const auto iterator = attributes.find(attribute); iterator != attributes.end())
                 return iterator->second;
@@ -99,7 +100,7 @@ namespace xml
             }
         }
 
-        const std::vector<Node>& getChildren() const noexcept { return children; }
+        const auto& getChildren() const noexcept { return children; }
         void pushBack(const Node& node) { children.push_back(node); }
 
         const std::string& getValue() const noexcept { return value; }
@@ -120,27 +121,27 @@ namespace xml
     public:
         Data() = default;
 
-        std::vector<Node>::iterator begin() noexcept
+        auto begin() noexcept
         {
             return children.begin();
         }
 
-        std::vector<Node>::iterator end() noexcept
+        auto end() noexcept
         {
             return children.end();
         }
 
-        std::vector<Node>::const_iterator begin() const noexcept
+        auto begin() const noexcept
         {
             return children.begin();
         }
 
-        std::vector<Node>::const_iterator end() const noexcept
+        auto end() const noexcept
         {
             return children.end();
         }
 
-        const std::vector<Node>& getChildren() const noexcept { return children; }
+        const auto& getChildren() const noexcept { return children; }
         void pushBack(const Node& node) { children.push_back(node); }
 
     private:

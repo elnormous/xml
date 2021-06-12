@@ -185,3 +185,69 @@ TEST_CASE("Byte", "[byte]")
     REQUIRE(node.getType() == xml::Node::Type::tag);
     REQUIRE(node.getValue() == "r");
 }
+
+TEST_CASE("Range-based for loop for data")
+{
+    SECTION("Mutable")
+    {
+        xml::Data data;
+        data.pushBack(xml::Node{"0"});
+        data.pushBack(xml::Node{"1"});
+
+        int counter = 0;
+
+        for (xml::Node& i : data)
+            REQUIRE(i.getValue() == std::to_string(counter++));
+
+        REQUIRE(counter == 2);
+    }
+
+    SECTION("Const")
+    {
+        xml::Data data;
+        data.pushBack(xml::Node{"0"});
+        data.pushBack(xml::Node{"1"});
+
+        const auto& constData = data;
+
+        int counter = 0;
+
+        for (const xml::Node& i : constData)
+            REQUIRE(i.getValue() == std::to_string(counter++));
+
+        REQUIRE(counter == 2);
+    }
+}
+
+TEST_CASE("Range-based for loop for node")
+{
+    SECTION("Mutable")
+    {
+        xml::Node node;
+        node.pushBack(xml::Node{"0"});
+        node.pushBack(xml::Node{"1"});
+
+        int counter = 0;
+
+        for (xml::Node& i : node)
+            REQUIRE(i.getValue() == std::to_string(counter++));
+
+        REQUIRE(counter == 2);
+    }
+
+    SECTION("Const")
+    {
+        xml::Node node;
+        node.pushBack(xml::Node{"0"});
+        node.pushBack(xml::Node{"1"});
+
+        const auto& constNode = node;
+
+        int counter = 0;
+
+        for (const xml::Node& i : constNode)
+            REQUIRE(i.getValue() == std::to_string(counter++));
+
+        REQUIRE(counter == 2);
+    }
+}
