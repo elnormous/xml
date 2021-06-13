@@ -41,8 +41,8 @@ namespace xml
         };
 
         Node() = default;
-        Node(Type initType): type(initType) {}
-        Node(const std::string& val): type(Type::text), value(val) {}
+        Node(Type initType): type{initType} {}
+        Node(const std::string& val): type(Type::text), value{val} {}
 
         Node& operator=(Type newType) noexcept
         {
