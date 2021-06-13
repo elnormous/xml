@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 namespace xml
@@ -42,7 +43,7 @@ namespace xml
 
         Node() = default;
         Node(Type initType): type{initType} {}
-        Node(const std::string& val): type(Type::text), value{val} {}
+        Node(const std::string_view val): type{Type::text}, value{val} {}
 
         Node& operator=(Type newType) noexcept
         {
@@ -50,7 +51,7 @@ namespace xml
             return *this;
         }
 
-        Node& operator=(const std::string& val)
+        Node& operator=(const std::string_view val)
         {
             type = Type::text;
             value = val;
@@ -104,7 +105,7 @@ namespace xml
         void pushBack(const Node& node) { children.push_back(node); }
 
         const auto& getValue() const noexcept { return value; }
-        void setValue(const std::string& newValue) { value = newValue; }
+        void setValue(const std::string_view newValue) { value = newValue; }
 
         const auto& getAttributes() const noexcept { return attributes; }
         void setAttributes(const Attributes& newAttributes) { attributes = newAttributes; }
