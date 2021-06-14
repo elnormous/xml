@@ -53,7 +53,7 @@ namespace xml
             return *this;
         }
 
-        Node& operator=(std::string&& val)
+        Node& operator=(std::string&& val) noexcept
         {
             type = Type::text;
             value = std::move(val);
