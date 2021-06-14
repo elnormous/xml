@@ -3,6 +3,51 @@
 #include "catch2/catch.hpp"
 #include "xml.hpp"
 
+TEST_CASE("Constuctor")
+{
+    SECTION("String literal")
+    {
+        const xml::Node node = "test";
+        REQUIRE(node.getValue() == "test");
+    }
+
+    SECTION("String view")
+    {
+        const xml::Node node = std::string_view{"test"};
+        REQUIRE(node.getValue() == "test");
+    }
+
+    SECTION("String")
+    {
+        const xml::Node node = std::string{"test"};
+        REQUIRE(node.getValue() == "test");
+    }
+}
+
+TEST_CASE("Assignment")
+{
+    SECTION("String literal")
+    {
+        xml::Node node;
+        node = "test";
+        REQUIRE(node.getValue() == "test");
+    }
+
+    SECTION("String view")
+    {
+        xml::Node node;
+        node = std::string_view{"test"};
+        REQUIRE(node.getValue() == "test");
+    }
+
+    SECTION("String")
+    {
+        xml::Node node;
+        node = std::string{"test"};
+        REQUIRE(node.getValue() == "test");
+    }
+}
+
 TEST_CASE("Comments", "[comments]")
 {
     const xml::Data d = xml::parse("<!--test--><root/>", true, true, true);
