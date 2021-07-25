@@ -84,7 +84,26 @@ TEST_CASE("End tag", "[parsing]")
     REQUIRE(node.getValue() == "root");
 }
 
-TEST_CASE("ProcessingInstruction", "[parsing]")
+TEST_CASE("Processing instruction", "[parsing]")
+{
+    const xml::Data d = xml::parse("<root><?pi value=\"bb\"?></root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::tag);
+    REQUIRE(node.getValue() == "root");
+
+    const auto firstChild = node.begin();
+    REQUIRE(firstChild != node.end());
+
+    const auto& child = *firstChild;
+    REQUIRE(child.getType() == xml::Node::Type::processingInstruction);
+    REQUIRE(child.getValue() == "pi");
+}
+
+TEST_CASE("Prolog", "[parsing]")
 {
     const xml::Data d = xml::parse("<?xml version=\"1.0\"?><root/>", true, true, true);
 
