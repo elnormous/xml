@@ -48,7 +48,7 @@ TEST_CASE("Assignment")
     }
 }
 
-TEST_CASE("Comments", "[comments]")
+TEST_CASE("Comments", "[parsing]")
 {
     const xml::Data d = xml::parse("<!--test--><root/>", true, true, true);
 
@@ -60,7 +60,7 @@ TEST_CASE("Comments", "[comments]")
     REQUIRE(node.getValue() == "test");
 }
 
-TEST_CASE("Empty element", "[empty_element]")
+TEST_CASE("Empty element", "[parsing]")
 {
     const xml::Data d = xml::parse("<root/>", true, true, true);
 
@@ -72,7 +72,7 @@ TEST_CASE("Empty element", "[empty_element]")
     REQUIRE(node.getValue() == "root");
 }
 
-TEST_CASE("End tag", "[end_tag]")
+TEST_CASE("End tag", "[parsing]")
 {
     const xml::Data d = xml::parse("<root></root>", true, true, true);
 
@@ -84,7 +84,7 @@ TEST_CASE("End tag", "[end_tag]")
     REQUIRE(node.getValue() == "root");
 }
 
-TEST_CASE("ProcessingInstruction", "[processing_instructions]")
+TEST_CASE("ProcessingInstruction", "[parsing]")
 {
     const xml::Data d = xml::parse("<?xml version=\"1.0\"?><root/>", true, true, true);
 
@@ -97,7 +97,7 @@ TEST_CASE("ProcessingInstruction", "[processing_instructions]")
     REQUIRE(node["version"] == "1.0");
 }
 
-TEST_CASE("Text", "[text]")
+TEST_CASE("Text", "[parsing]")
 {
     const xml::Data d = xml::parse("<root>text</root>", true, true, true);
 
@@ -112,7 +112,7 @@ TEST_CASE("Text", "[text]")
     REQUIRE(child.getValue() == "text");
 }
 
-TEST_CASE("Attributes", "[attributes]")
+TEST_CASE("Attributes", "[parsing]")
 {
     const xml::Data d = xml::parse("<root test=\"t\" test2=\"1\"></root>", true, true, true);
 
@@ -128,7 +128,7 @@ TEST_CASE("Attributes", "[attributes]")
     REQUIRE(attribute.second == "t");
 }
 
-TEST_CASE("EntityReferences", "[entity_references]")
+TEST_CASE("EntityReferences", "[parsing]")
 {
     const xml::Data d = xml::parse("<root test=\"&lt;\">&gt;&amp;&apos;&quot;</root>", true, true, true);
 
@@ -151,7 +151,7 @@ TEST_CASE("EntityReferences", "[entity_references]")
     REQUIRE(child.getValue() == ">&'\"");
 }
 
-TEST_CASE("CharacterReferences", "[character_references]")
+TEST_CASE("CharacterReferences", "[parsing]")
 {
     const xml::Data d = xml::parse("<root test=\"&#65;\">&#x42;</root>", true, true, true);
 
@@ -206,7 +206,7 @@ TEST_CASE("Encoding", "[encoding]")
     REQUIRE(xml::encode(d, true) == "<?xml encoding=\"utf-8\" version=\"1.0\"?>\n<n a=\"a\" b=\"b\">\n\t<c1 c=\"c\">\n\t\ttext\n\t</c1>\n\t<c2 dd=\"dd\"/>\n</n>\n");
 }
 
-TEST_CASE("IllegalCharacters", "[illegal_characters]")
+TEST_CASE("IllegalCharacters", "[errors]")
 {
     REQUIRE_THROWS_AS(xml::parse("<root>&</root>", true, true, true), xml::ParseError);
     REQUIRE_THROWS_AS(xml::parse("<root a=\"<\"></root>", true, true, true), xml::ParseError);
