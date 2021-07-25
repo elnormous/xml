@@ -294,6 +294,7 @@ namespace xml
                 const auto str = toUtf32(byteOrderMark ? begin + 3 : begin, end);
                 auto iterator = str.begin();
                 bool rootTagFound = false;
+                bool prologAllowed = true;
 
                 Data result;
 
@@ -306,7 +307,8 @@ namespace xml
                     const auto node = parse(iterator, str.end(),
                                             preserveWhitespaces,
                                             preserveComments,
-                                            preserveProcessingInstructions);
+                                            preserveProcessingInstructions,
+                                            prologAllowed);
 
                     if ((preserveComments || node.getType() != Node::Type::comment) &&
                         (preserveProcessingInstructions || node.getType() != Node::Type::processingInstruction))
@@ -321,6 +323,8 @@ namespace xml
                                 rootTagFound = true;
                         }
                     }
+
+                    prologAllowed = false;
                 }
 
                 if (!rootTagFound)
@@ -546,7 +550,8 @@ namespace xml
                               std::u32string::const_iterator end,
                               bool preserveWhitespaces,
                               bool preserveComments,
-                              bool preserveProcessingInstructions)
+                              bool preserveProcessingInstructions,
+                              bool prologAllowed)
             {
                 Node result;
 
@@ -642,7 +647,16 @@ namespace xml
                     {
                         ++iterator;
                         result = Node::Type::processingInstruction;
-                        result.setValue(parseName(iterator, end));
+                        const auto name = parseName(iterator, end);
+                        if (!prologAllowed && name.length() == 3 &&
+                            std::tolower(name[0]) == 'x' &&
+                            std::tolower(name[1]) == 'm' &&
+                            std::tolower(name[2]) == 'l')
+                        {
+                            throw ParseError("Invalid processing instruction");
+                        }
+
+                        result.setValue(name);
 
                         for (;;)
                         {
@@ -759,7 +773,11 @@ namespace xml
                                 }
                                 else
                                 {
-                                    const auto node = parse(iterator, end, preserveWhitespaces, preserveComments, preserveProcessingInstructions);
+                                    const auto node = parse(iterator, end,
+                                                            preserveWhitespaces,
+                                                            preserveComments,
+                                                            preserveProcessingInstructions,
+                                                            false);
 
                                     if ((preserveComments || node.getType() != Node::Type::comment) &&
                                         (preserveProcessingInstructions || node.getType() != Node::Type::processingInstruction))

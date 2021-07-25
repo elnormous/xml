@@ -231,6 +231,11 @@ TEST_CASE("IllegalCharacters", "[errors]")
     REQUIRE_THROWS_AS(xml::parse("<root a=\"<\"></root>", true, true, true), xml::ParseError);
 }
 
+TEST_CASE("Illegal processing instruction", "[errors]")
+{
+    REQUIRE_THROWS_AS(xml::parse("<root><?xml version=\"1.0\"?></root>", true, true, true), xml::ParseError);
+}
+
 TEST_CASE("Byte", "[byte]")
 {
     const std::vector<std::byte> data = {
