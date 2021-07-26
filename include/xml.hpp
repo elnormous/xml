@@ -647,6 +647,7 @@ namespace xml
                     {
                         ++iterator;
                         result = Node::Type::processingInstruction;
+
                         const auto name = parseName(iterator, end);
                         if (!prologAllowed && name.length() == 3 &&
                             std::tolower(name[0]) == 'x' &&
