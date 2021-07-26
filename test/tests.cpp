@@ -193,6 +193,25 @@ TEST_CASE("CharacterReferences", "[parsing]")
     REQUIRE(child.getValue() == "B");
 }
 
+TEST_CASE("Character data", "[parsing]")
+{
+    const xml::Data d = xml::parse("<root><![CDATA[test]]></root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::tag);
+    REQUIRE(node.getName() == "root");
+
+    const auto& firstChild = node.begin();
+    REQUIRE(firstChild != node.end());
+
+    const auto& childNode = *firstChild;
+    REQUIRE(childNode.getType() == xml::Node::Type::characterData);
+    REQUIRE(childNode.getValue() == "test");
+}
+
 TEST_CASE("Encoding", "[encoding]")
 {
     xml::Data d;
