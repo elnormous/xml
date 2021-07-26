@@ -114,6 +114,9 @@ namespace xml
         const auto& getChildren() const noexcept { return children; }
         void pushBack(const Node& node) { children.push_back(node); }
 
+        const auto& getName() const noexcept { return name; }
+        void setName(const std::string_view newName) { name = newName; }
+
         const auto& getValue() const noexcept { return value; }
         void setValue(const std::string_view newValue) { value = newValue; }
 
@@ -122,6 +125,7 @@ namespace xml
 
     private:
         Type type = Type::tag;
+        std::string name;
         std::string value;
         Attributes attributes;
         std::vector<Node> children;
@@ -657,7 +661,7 @@ namespace xml
                             throw ParseError("Invalid processing instruction");
                         }
 
-                        result.setValue(name);
+                        result.setName(name);
 
                         for (;;)
                         {
@@ -697,7 +701,7 @@ namespace xml
                     else // <
                     {
                         result = Node::Type::tag;
-                        result.setValue(parseName(iterator, end));
+                        result.setName(parseName(iterator, end));
 
                         bool tagClosed = false;
 
@@ -759,7 +763,7 @@ namespace xml
                                     ++iterator; // skip the left angle bracket
                                     ++iterator; // skip the slash
 
-                                    if (const auto tag = parseName(iterator, end); tag != result.getValue())
+                                    if (const auto tag = parseName(iterator, end); tag != result.getName())
                                         throw ParseError{"Tag not closed properly"};
 
                                     if (iterator == end)
@@ -921,9 +925,9 @@ namespace xml
                         throw ParseError{"Type declarations are not supported"};
                     case Node::Type::processingInstruction:
                     {
-                        const auto& value = node.getValue();
+                        const auto& name = node.getName();
                         result.insert(result.end(), {'<', '?'});
-                        result.insert(result.end(), value.begin(), value.end());
+                        result.insert(result.end(), name.begin(), name.end());
 
                         const auto& attributes = node.getAttributes();
                         for (const auto& [key, attributeValue] : attributes)
@@ -940,9 +944,9 @@ namespace xml
                     }
                     case Node::Type::tag:
                     {
-                        const auto& value = node.getValue();
+                        const auto& name = node.getName();
                         result.insert(result.end(), '<');
-                        result.insert(result.end(), value.begin(), value.end());
+                        result.insert(result.end(), name.begin(), name.end());
 
                         const auto& attributes = node.getAttributes();
                         for (const auto& [key, attributeValue] : attributes)
@@ -970,7 +974,7 @@ namespace xml
 
                             if (whitespaces) result.insert(result.end(), level, '\t');
                             result.insert(result.end(), {'<', '/'});
-                            result.insert(result.end(), value.begin(), value.end());
+                            result.insert(result.end(), name.begin(), name.end());
                             result.insert(result.end(), '>');
                         }
                         break;

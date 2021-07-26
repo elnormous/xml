@@ -69,7 +69,7 @@ TEST_CASE("Empty element", "[parsing]")
 
     const auto& node = *first;
     REQUIRE(node.getType() == xml::Node::Type::tag);
-    REQUIRE(node.getValue() == "root");
+    REQUIRE(node.getName() == "root");
 }
 
 TEST_CASE("End tag", "[parsing]")
@@ -81,7 +81,7 @@ TEST_CASE("End tag", "[parsing]")
 
     const auto& node = *first;
     REQUIRE(node.getType() == xml::Node::Type::tag);
-    REQUIRE(node.getValue() == "root");
+    REQUIRE(node.getName() == "root");
 }
 
 TEST_CASE("Processing instruction", "[parsing]")
@@ -112,7 +112,7 @@ TEST_CASE("Prolog", "[parsing]")
 
     const auto& node = *first;
     REQUIRE(node.getType() == xml::Node::Type::processingInstruction);
-    REQUIRE(node.getValue() == "xml");
+    REQUIRE(node.getName() == "xml");
     REQUIRE(node["version"] == "1.0");
 }
 
@@ -197,20 +197,20 @@ TEST_CASE("Encoding", "[encoding]")
 {
     xml::Data d;
     xml::Node p(xml::Node::Type::processingInstruction);
-    p.setValue("xml");
+    p.setName("xml");
     p.setAttributes({{"version", "1.0"}, {"encoding", "utf-8"}});
     d.pushBack(p);
 
     xml::Node n(xml::Node::Type::tag);
-    n.setValue("n");
+    n.setName("n");
     n.setAttributes({{"a", "a"}, {"b", "b"}});
 
     xml::Node c1(xml::Node::Type::tag);
-    c1.setValue("c1");
+    c1.setName("c1");
     c1.setAttributes({{"c", "c"}});
 
     xml::Node c2(xml::Node::Type::tag);
-    c2.setValue("c2");
+    c2.setName("c2");
     c2.setAttributes({{"dd", "dd"}});
 
     xml::Node t(xml::Node::Type::text);
@@ -257,7 +257,7 @@ TEST_CASE("Byte", "[byte]")
 
     const auto& node = *first;
     REQUIRE(node.getType() == xml::Node::Type::tag);
-    REQUIRE(node.getValue() == "r");
+    REQUIRE(node.getName() == "r");
 }
 
 TEST_CASE("Range-based for loop for data")
