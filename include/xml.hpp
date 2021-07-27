@@ -4,6 +4,7 @@
 #define XML_HPP
 
 #include <array>
+#include <cctype>
 #include <functional>
 #include <map>
 #include <stdexcept>
