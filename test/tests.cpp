@@ -93,14 +93,14 @@ TEST_CASE("Processing instruction", "[parsing]")
 
     const auto& node = *first;
     REQUIRE(node.getType() == xml::Node::Type::tag);
-    REQUIRE(node.getValue() == "root");
+    REQUIRE(node.getName() == "root");
 
     const auto firstChild = node.begin();
     REQUIRE(firstChild != node.end());
 
     const auto& child = *firstChild;
     REQUIRE(child.getType() == xml::Node::Type::processingInstruction);
-    REQUIRE(child.getValue() == "pi");
+    REQUIRE(child.getName() == "pi");
 }
 
 TEST_CASE("Prolog", "[parsing]")
