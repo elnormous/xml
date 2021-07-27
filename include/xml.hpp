@@ -263,21 +263,21 @@ namespace xml
                         result.push_back(static_cast<char>(*i));
                     else if (*i <= 0x7FF)
                     {
-                        result.push_back(static_cast<char>(0xC0 | ((static_cast<std::uint8_t>(*i) >> 6) & 0x1F)));
-                        result.push_back(static_cast<char>(0x80 | (static_cast<std::uint8_t>(*i) & 0x3F)));
+                        result.push_back(static_cast<char>(0xC0 | ((*i >> 6) & 0x1F)));
+                        result.push_back(static_cast<char>(0x80 | (*i & 0x3F)));
                     }
                     else if (*i <= 0xFFFF)
                     {
-                        result.push_back(static_cast<char>(0xE0 | ((static_cast<std::uint8_t>(*i) >> 12) & 0x0F)));
-                        result.push_back(static_cast<char>(0x80 | ((static_cast<std::uint8_t>(*i) >> 6) & 0x3F)));
-                        result.push_back(static_cast<char>(0x80 | (static_cast<std::uint8_t>(*i) & 0x3F)));
+                        result.push_back(static_cast<char>(0xE0 | ((*i >> 12) & 0x0F)));
+                        result.push_back(static_cast<char>(0x80 | ((*i >> 6) & 0x3F)));
+                        result.push_back(static_cast<char>(0x80 | (*i & 0x3F)));
                     }
                     else
                     {
-                        result.push_back(static_cast<char>(0xF0 | ((static_cast<std::uint8_t>(*i) >> 18) & 0x07)));
-                        result.push_back(static_cast<char>(0x80 | ((static_cast<std::uint8_t>(*i) >> 12) & 0x3F)));
-                        result.push_back(static_cast<char>(0x80 | ((static_cast<std::uint8_t>(*i) >> 6) & 0x3F)));
-                        result.push_back(static_cast<char>(0x80 | (static_cast<std::uint8_t>(*i) & 0x3F)));
+                        result.push_back(static_cast<char>(0xF0 | ((*i >> 18) & 0x07)));
+                        result.push_back(static_cast<char>(0x80 | ((*i >> 12) & 0x3F)));
+                        result.push_back(static_cast<char>(0x80 | ((*i >> 6) & 0x3F)));
+                        result.push_back(static_cast<char>(0x80 | (*i & 0x3F)));
                     }
                 }
 
