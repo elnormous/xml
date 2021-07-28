@@ -86,7 +86,7 @@ TEST_CASE("End tag", "[parsing]")
 
 TEST_CASE("Processing instruction", "[parsing]")
 {
-    const xml::Data d = xml::parse("<root><?pi value=\"bb\"?></root>", true, true, true);
+    const xml::Data d = xml::parse("<root><?pi bb?></root>", true, true, true);
 
     const auto first = d.begin();
     REQUIRE(first != d.end());
@@ -101,6 +101,7 @@ TEST_CASE("Processing instruction", "[parsing]")
     const auto& child = *firstChild;
     REQUIRE(child.getType() == xml::Node::Type::processingInstruction);
     REQUIRE(child.getName() == "pi");
+    REQUIRE(child.getValue() == "bb");
 }
 
 TEST_CASE("Prolog", "[parsing]")
@@ -113,7 +114,7 @@ TEST_CASE("Prolog", "[parsing]")
     const auto& node = *first;
     REQUIRE(node.getType() == xml::Node::Type::processingInstruction);
     REQUIRE(node.getName() == "xml");
-    REQUIRE(node["version"] == "1.0");
+    REQUIRE(node.getValue() == "version=\"1.0\"");
 }
 
 TEST_CASE("Text", "[parsing]")
@@ -217,7 +218,7 @@ TEST_CASE("Encoding", "[encoding]")
     xml::Data d;
     xml::Node p(xml::Node::Type::processingInstruction);
     p.setName("xml");
-    p.setAttributes({{"version", "1.0"}, {"encoding", "utf-8"}});
+    p.setValue("version=\"1.0\" encoding=\"utf-8\"");
     d.pushBack(p);
 
     xml::Node n(xml::Node::Type::tag);
@@ -240,8 +241,8 @@ TEST_CASE("Encoding", "[encoding]")
     n.pushBack(c2);
     d.pushBack(n);
 
-    REQUIRE(xml::encode(d) == "<?xml encoding=\"utf-8\" version=\"1.0\"?><n a=\"a\" b=\"b\"><c1 c=\"c\">text</c1><c2 dd=\"dd\"/></n>");
-    REQUIRE(xml::encode(d, true) == "<?xml encoding=\"utf-8\" version=\"1.0\"?>\n<n a=\"a\" b=\"b\">\n\t<c1 c=\"c\">\n\t\ttext\n\t</c1>\n\t<c2 dd=\"dd\"/>\n</n>\n");
+    REQUIRE(xml::encode(d) == "<?xml version=\"1.0\" encoding=\"utf-8\"?><n a=\"a\" b=\"b\"><c1 c=\"c\">text</c1><c2 dd=\"dd\"/></n>");
+    REQUIRE(xml::encode(d, true) == "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<n a=\"a\" b=\"b\">\n\t<c1 c=\"c\">\n\t\ttext\n\t</c1>\n\t<c2 dd=\"dd\"/>\n</n>\n");
 }
 
 TEST_CASE("IllegalCharacters", "[errors]")
