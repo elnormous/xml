@@ -84,6 +84,18 @@ TEST_CASE("End tag", "[parsing]")
     REQUIRE(node.getName() == "root");
 }
 
+TEST_CASE("XSD", "[parsing]")
+{
+    const xml::Data d = xml::parse("<xs:schema></xs:schema>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::tag);
+    REQUIRE(node.getName() == "xs:schema");
+}
+
 TEST_CASE("Processing instruction", "[parsing]")
 {
     const xml::Data d = xml::parse("<root><?pi bb?></root>", true, true, true);
