@@ -213,6 +213,17 @@ TEST_CASE("Character data", "[parsing]")
     REQUIRE(childNode.getValue() == "test");
 }
 
+TEST_CASE("Document type definition", "[parsing]")
+{
+    const xml::Data d = xml::parse("<!DOCTYPE test><root></root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::documentTypeDefinition);
+}
+
 TEST_CASE("Encoding", "[encoding]")
 {
     xml::Data d;
