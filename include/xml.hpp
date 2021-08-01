@@ -401,18 +401,12 @@ namespace xml
                 if (!isNameStartChar(*iterator))
                     throw ParseError{"Invalid name start"};
 
-                for (;;)
+                while (isNameChar(*iterator))
                 {
-                    if (iterator == end)
-                        throw ParseError{"Unexpected end of data"};
+                    result += fromUtf32(*iterator);
 
-                    if (!isNameChar(*iterator))
-                        break;
-                    else
-                    {
-                        result += fromUtf32(*iterator);
-                        ++iterator;
-                    }
+                    if (++iterator == end)
+                        throw ParseError{"Unexpected end of data"};
                 }
 
                 return result;
@@ -429,21 +423,20 @@ namespace xml
                 if (*iterator != '&')
                     throw ParseError{"Expected an ampersand"};
 
+                if (++iterator == end)
+                    throw ParseError{"Unexpected end of data"};
+
                 std::string value;
 
-                for (;;)
+                while (*iterator != ';')
                 {
+                    value += fromUtf32(*iterator);
+
                     if (++iterator == end)
                         throw ParseError{"Unexpected end of data"};
-
-                    if (*iterator == ';')
-                    {
-                        ++iterator;
-                        break;
-                    }
-                    else
-                        value.push_back(static_cast<char>(*iterator));
                 }
+
+                ++iterator;
 
                 if (value.empty())
                     throw ParseError{"Invalid entity"};
@@ -522,19 +515,12 @@ namespace xml
 
                 const auto quotes = *iterator;
 
-                ++iterator;
+                if (++iterator == end)
+                    throw ParseError{"Unexpected end of data"};
 
-                for (;;)
+                while (*iterator != quotes)
                 {
-                    if (iterator == end)
-                        throw ParseError{"Unexpected end of data"};
-
-                    if (*iterator == quotes)
-                    {
-                        ++iterator;
-                        break;
-                    }
-                    else if (*iterator == '&')
+                    if (*iterator == '&')
                     {
                         const auto entity = parseReference(iterator, end);
                         result += entity;
@@ -544,9 +530,13 @@ namespace xml
                     else
                     {
                         result += fromUtf32(*iterator);
-                        ++iterator;
+
+                        if (++iterator == end)
+                            throw ParseError{"Unexpected end of data"};
                     }
                 }
+
+                ++iterator;
 
                 return result;
             }
