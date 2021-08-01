@@ -234,6 +234,7 @@ TEST_CASE("Document type definition", "[parsing]")
 
     const auto& node = *first;
     REQUIRE(node.getType() == xml::Node::Type::documentTypeDefinition);
+    REQUIRE(node.getName() == "test");
 }
 
 TEST_CASE("Encoding", "[encoding]")

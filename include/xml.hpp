@@ -645,29 +645,31 @@ namespace xml
                             }
                             result.setValue(value);
                         }
-                        else
+                        else // <!
                         {
-                            std::string name;
-                            name = parseName(iterator, end);
+                            std::string type;
+                            type = parseName(iterator, end);
 
-                            if (name != "DOCTYPE")
+                            if (type != "DOCTYPE")
                                 throw ParseError{"Invalid document type declaration"};
 
                             result = Node::Type::documentTypeDefinition;
 
+                            skipWhitespaces(iterator, end);
+
+                            const auto name = parseName(iterator, end);
+                            result.setName(name);
+
+                            if (iterator == end)
+                                throw ParseError{"Unexpected end of data"};
+
                             std::string value;
-                            for (;;)
+                            while (*iterator != '>')
                             {
+                                value += fromUtf32(*iterator);
+
                                 if (++iterator == end)
                                     throw ParseError{"Unexpected end of data"};
-
-                                if (*iterator == '>')
-                                {
-                                    ++iterator;
-                                    break;
-                                }
-
-                                value += fromUtf32(*iterator);
                             }
                             result.setValue(value);
                         }
