@@ -237,6 +237,42 @@ TEST_CASE("Document type definition", "[parsing]")
     REQUIRE(node.getName() == "test");
 }
 
+TEST_CASE("Document type definition with elements", "[parsing]")
+{
+    const xml::Data d = xml::parse("<!DOCTYPE test [<!ELEMENT test (a)>]><root></root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::documentTypeDefinition);
+
+    const auto& firstChild = node.begin();
+    REQUIRE(firstChild != node.end());
+
+    const auto& childNode = *firstChild;
+    REQUIRE(childNode.getType() == xml::Node::Type::element);
+    REQUIRE(childNode.getName() == "test");
+}
+
+TEST_CASE("Document type definition with attribute list", "[parsing]")
+{
+    const xml::Data d = xml::parse("<!DOCTYPE test [<!ATTLIST test test CDATA #IMPLIED>]><root></root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::documentTypeDefinition);
+
+    const auto& firstChild = node.begin();
+    REQUIRE(firstChild != node.end());
+
+    const auto& childNode = *firstChild;
+    REQUIRE(childNode.getType() == xml::Node::Type::attributeList);
+    REQUIRE(childNode.getName() == "test");
+}
+
 TEST_CASE("Encoding", "[encoding]")
 {
     xml::Data d;

@@ -37,6 +37,8 @@ namespace xml
             typeDeclaration,
             processingInstruction,
             documentTypeDefinition,
+            element,
+            attributeList,
             tag,
             text
         };
@@ -541,118 +543,192 @@ namespace xml
                 return result;
             }
 
-            static Node parse(std::u32string::const_iterator& iterator,
-                              std::u32string::const_iterator end,
-                              bool preserveWhitespaces,
-                              bool preserveComments,
-                              bool preserveProcessingInstructions,
-                              bool prologAllowed)
+            static Node parseDtdElement(std::u32string::const_iterator& iterator,
+                                        std::u32string::const_iterator end)
             {
+                if (iterator == end)
+                    throw ParseError{"Unexpected end of data"};
+
+                if (*iterator != '<')
+                    throw ParseError{"Expected a left angle bracket"};
+
+                if (++iterator == end)
+                    throw ParseError{"Unexpected end of data"};
+
+                if (*iterator != '!')
+                    throw ParseError{"Expected an exclamation mark"};
+
+                if (++iterator == end)
+                    throw ParseError{"Unexpected end of data"};
+
                 Node result;
+
+                const auto type = parseName(iterator, end);
+
+                if (type == "ELEMENT")
+                {
+                    result = Node::Type::element;
+                }
+                else if (type == "ATTLIST")
+                {
+                    result = Node::Type::attributeList;
+                }
+
+                skipWhitespaces(iterator, end);
+
+                result.setName(parseName(iterator, end));
 
                 if (iterator == end)
                     throw ParseError{"Unexpected end of data"};
 
-                if (*iterator == '<')
+                while (*iterator != '>')
+                {
+                    ++iterator;
+                    if (iterator == end)
+                        throw ParseError{"Unexpected end of data"};
+                }
+
+                ++iterator;
+
+                return result;
+            }
+
+            static Node parseElement(std::u32string::const_iterator& iterator,
+                                     std::u32string::const_iterator end,
+                                     bool preserveWhitespaces,
+                                     bool preserveComments,
+                                     bool preserveProcessingInstructions,
+                                     bool prologAllowed)
+            {
+                if (*iterator != '<') // <
+                    throw ParseError{"Expected a left angle bracket"};
+
+                if (++iterator == end)
+                    throw ParseError{"Unexpected end of data"};
+
+                Node result;
+
+                if (*iterator == '!') // <!
                 {
                     if (++iterator == end)
                         throw ParseError{"Unexpected end of data"};
 
-                    if (*iterator == '!') // <!
+                    if (*iterator == '-') // <!-
                     {
                         if (++iterator == end)
                             throw ParseError{"Unexpected end of data"};
 
-                        if (*iterator == '-') // <!-
+                        if (*iterator != '-') // <!--
+                            throw ParseError{"Expected a comment"};
+
+                        result = Node::Type::comment;
+
+                        std::string value;
+                        for (;;)
+                        {
+                            if (std::distance(++iterator, end) < 3)
+                                throw ParseError{"Unexpected end of data"};
+
+                            if (*iterator == '-')
+                            {
+                                if (*(iterator + 1) == '-') // --
+                                {
+                                    iterator += 2;
+
+                                    if (*iterator == '>') // -->
+                                    {
+                                        ++iterator;
+                                        break;
+                                    }
+                                    else
+                                        throw ParseError{"Unexpected double-hyphen inside comment"};
+                                }
+                            }
+
+                            value += fromUtf32(*iterator);
+                        }
+
+                        result.setValue(value);
+                    }
+                    else if (*iterator == '[') // <![
+                    {
+                        ++iterator;
+                        std::string name;
+                        name = parseName(iterator, end);
+
+                        if (name != "CDATA")
+                            throw ParseError{"Expected CDATA"};
+
+                        if (iterator == end)
+                            throw ParseError{"Unexpected end of data"};
+
+                        if (*iterator != '[')
+                            throw ParseError{"Expected a left bracket"};
+
+                        result = Node::Type::characterData;
+
+                        std::string value;
+                        for (;;)
+                        {
+                            if (std::distance(++iterator, end) < 3)
+                                throw ParseError{"Unexpected end of data"};
+
+                            if (*iterator == ']' &&
+                                *(iterator + 1) == ']' &&
+                                *(iterator + 2) == '>')
+                            {
+                                iterator += 3;
+                                break;
+                            }
+
+                            value += fromUtf32(*iterator);
+                        }
+                        result.setValue(value);
+                    }
+                    else // <!
+                    {
+                        std::string type;
+                        type = parseName(iterator, end);
+
+                        if (type != "DOCTYPE")
+                            throw ParseError{"Invalid document type declaration"};
+
+                        result = Node::Type::documentTypeDefinition;
+
+                        skipWhitespaces(iterator, end);
+
+                        const auto name = parseName(iterator, end);
+                        result.setName(name);
+
+                        skipWhitespaces(iterator, end);
+                        
+                        if (iterator == end)
+                            throw ParseError{"Unexpected end of data"};
+
+                        if (*iterator == '[')
                         {
                             if (++iterator == end)
                                 throw ParseError{"Unexpected end of data"};
 
-                            if (*iterator != '-') // <!--
-                                throw ParseError{"Expected a comment"};
-
-                            result = Node::Type::comment;
-
-                            std::string value;
-                            for (;;)
-                            {
-                                if (std::distance(++iterator, end) < 3)
-                                    throw ParseError{"Unexpected end of data"};
-
-                                if (*iterator == '-')
-                                {
-                                    if (*(iterator + 1) == '-') // --
-                                    {
-                                        iterator += 2;
-
-                                        if (*iterator == '>') // -->
-                                        {
-                                            ++iterator;
-                                            break;
-                                        }
-                                        else
-                                            throw ParseError{"Unexpected double-hyphen inside comment"};
-                                    }
-                                }
-
-                                value += fromUtf32(*iterator);
-                            }
-
-                            result.setValue(value);
-                        }
-                        else if (*iterator == '[') // <![
-                        {
-                            ++iterator;
-                            std::string name;
-                            name = parseName(iterator, end);
-
-                            if (name != "CDATA")
-                                throw ParseError{"Expected CDATA"};
-
-                            if (iterator == end)
-                                throw ParseError{"Unexpected end of data"};
-
-                            if (*iterator != '[')
-                                throw ParseError{"Expected a left bracket"};
-
-                            result = Node::Type::characterData;
-
-                            std::string value;
-                            for (;;)
-                            {
-                                if (std::distance(++iterator, end) < 3)
-                                    throw ParseError{"Unexpected end of data"};
-
-                                if (*iterator == ']' &&
-                                    *(iterator + 1) == ']' &&
-                                    *(iterator + 2) == '>')
-                                {
-                                    iterator += 3;
-                                    break;
-                                }
-
-                                value += fromUtf32(*iterator);
-                            }
-                            result.setValue(value);
-                        }
-                        else // <!
-                        {
-                            std::string type;
-                            type = parseName(iterator, end);
-
-                            if (type != "DOCTYPE")
-                                throw ParseError{"Invalid document type declaration"};
-
-                            result = Node::Type::documentTypeDefinition;
-
                             skipWhitespaces(iterator, end);
 
-                            const auto name = parseName(iterator, end);
-                            result.setName(name);
-
                             if (iterator == end)
                                 throw ParseError{"Unexpected end of data"};
 
+                            while (*iterator != ']')
+                            {
+                                result.pushBack(parseDtdElement(iterator, end));
+
+                                skipWhitespaces(iterator, end);
+
+                                if (iterator == end)
+                                    throw ParseError{"Unexpected end of data"};
+                            }
+
+                            ++iterator;
+                        }
+                        else
+                        {
                             std::string value;
                             while (*iterator != '>')
                             {
@@ -664,167 +740,202 @@ namespace xml
                             result.setValue(value);
                         }
 
-                    }
-                    else if (*iterator == '?') // <?
-                    {
-                        ++iterator;
-                        result = Node::Type::processingInstruction;
+                        skipWhitespaces(iterator, end);
 
-                        const auto name = parseName(iterator, end);
-                        if (!prologAllowed && name.length() == 3 &&
-                            std::tolower(name[0]) == 'x' &&
-                            std::tolower(name[1]) == 'm' &&
-                            std::tolower(name[2]) == 'l')
+                        if (iterator == end)
+                            throw ParseError{"Unexpected end of data"};
+
+                        if (*iterator != '>')
+                            throw ParseError{"Expected a right angle bracket"};
+
+                        ++iterator;
+                    }
+
+                }
+                else if (*iterator == '?') // <?
+                {
+                    ++iterator;
+                    result = Node::Type::processingInstruction;
+
+                    const auto name = parseName(iterator, end);
+                    if (!prologAllowed && name.length() == 3 &&
+                        std::tolower(name[0]) == 'x' &&
+                        std::tolower(name[1]) == 'm' &&
+                        std::tolower(name[2]) == 'l')
+                    {
+                        throw ParseError("Invalid processing instruction");
+                    }
+
+                    result.setName(name);
+
+                    skipWhitespaces(iterator, end);
+
+                    if (iterator == end)
+                        throw ParseError{ "Unexpected end of data" };
+
+                    std::string value;
+
+                    while (*iterator != '?')
+                    {
+                        value += fromUtf32(*iterator);
+
+                        if (++iterator == end)
+                            throw ParseError{ "Unexpected end of data" };
+                    }
+
+                    if (++iterator == end)
+                        throw ParseError{"Unexpected end of data"};
+
+                    if (*iterator != '>')
+                        throw ParseError{"Expected a right angle bracket"};
+
+                    ++iterator;
+
+                    result.setValue(value);
+                }
+                else // <
+                {
+                    result = Node::Type::tag;
+                    result.setName(parseName(iterator, end));
+
+                    bool tagClosed = false;
+
+                    for (;;)
+                    {
+                        skipWhitespaces(iterator, end);
+
+                        if (iterator == end)
+                            throw ParseError{"Unexpected end of data"};
+
+                        if (*iterator == '>')
                         {
-                            throw ParseError("Invalid processing instruction");
+                            ++iterator;
+                            break;
+                        }
+                        else if (*iterator == '/')
+                        {
+                            if (++iterator == end)
+                                throw ParseError{"Unexpected end of data"};
+
+                            if (*iterator != '>') // />
+                                throw ParseError{"Expected a right angle bracket"};
+
+                            tagClosed = true;
+                            ++iterator;
+                            break;
                         }
 
-                        result.setName(name);
+                        const auto attribute = parseName(iterator, end);
 
                         skipWhitespaces(iterator, end);
 
                         if (iterator == end)
-                            throw ParseError{ "Unexpected end of data" };
-
-                        std::string value;
-
-                        while (*iterator != '?')
-                        {
-                            value += fromUtf32(*iterator);
-
-                            if (++iterator == end)
-                                throw ParseError{ "Unexpected end of data" };
-                        }
-                        
-                        if (++iterator == end)
                             throw ParseError{"Unexpected end of data"};
 
-                        if (*iterator != '>') // ?>
-                            throw ParseError{"Expected a right angle bracket"};
+                        if (*iterator != '=')
+                            throw ParseError{"Expected an equal sign"};
 
                         ++iterator;
 
-                        result.setValue(value);
+                        skipWhitespaces(iterator, end);
+
+                        result[attribute] = parseString(iterator, end);
                     }
-                    else // <
+
+                    if (!tagClosed)
                     {
-                        result = Node::Type::tag;
-                        result.setName(parseName(iterator, end));
-
-                        bool tagClosed = false;
-
                         for (;;)
                         {
-                            skipWhitespaces(iterator, end);
+                            if (!preserveWhitespaces) skipWhitespaces(iterator, end);
 
                             if (iterator == end)
                                 throw ParseError{"Unexpected end of data"};
 
-                            if (*iterator == '>')
+                            if (*iterator == '<' &&
+                                iterator + 1 != end &&
+                                *(iterator + 1) == '/')
                             {
-                                ++iterator;
-                                break;
-                            }
-                            else if (*iterator == '/')
-                            {
-                                if (++iterator == end)
-                                    throw ParseError{"Unexpected end of data"};
+                                ++iterator; // skip the left angle bracket
+                                ++iterator; // skip the slash
 
-                                if (*iterator != '>') // />
-                                    throw ParseError{"Expected a right angle bracket"};
-
-                                tagClosed = true;
-                                ++iterator;
-                                break;
-                            }
-
-                            const auto attribute = parseName(iterator, end);
-
-                            skipWhitespaces(iterator, end);
-
-                            if (iterator == end)
-                                throw ParseError{"Unexpected end of data"};
-
-                            if (*iterator != '=')
-                                throw ParseError{"Expected an equal sign"};
-
-                            ++iterator;
-
-                            skipWhitespaces(iterator, end);
-
-                            result[attribute] = parseString(iterator, end);
-                        }
-
-                        if (!tagClosed)
-                        {
-                            for (;;)
-                            {
-                                if (!preserveWhitespaces) skipWhitespaces(iterator, end);
+                                if (const auto tag = parseName(iterator, end); tag != result.getName())
+                                    throw ParseError{"Tag not closed properly"};
 
                                 if (iterator == end)
                                     throw ParseError{"Unexpected end of data"};
 
-                                if (*iterator == '<' &&
-                                    iterator + 1 != end &&
-                                    *(iterator + 1) == '/')
-                                {
-                                    ++iterator; // skip the left angle bracket
-                                    ++iterator; // skip the slash
+                                if (*iterator != '>')
+                                    throw ParseError{"Expected a right angle bracket"};
 
-                                    if (const auto tag = parseName(iterator, end); tag != result.getName())
-                                        throw ParseError{"Tag not closed properly"};
+                                ++iterator;
 
-                                    if (iterator == end)
-                                        throw ParseError{"Unexpected end of data"};
+                                break;
+                            }
+                            else
+                            {
+                                const auto node = parse(iterator, end,
+                                                        preserveWhitespaces,
+                                                        preserveComments,
+                                                        preserveProcessingInstructions,
+                                                        false);
 
-                                    if (*iterator != '>')
-                                        throw ParseError{"Expected a right angle bracket"};
-
-                                    ++iterator;
-
-                                    break;
-                                }
-                                else
-                                {
-                                    const auto node = parse(iterator, end,
-                                                            preserveWhitespaces,
-                                                            preserveComments,
-                                                            preserveProcessingInstructions,
-                                                            false);
-
-                                    if ((preserveComments || node.getType() != Node::Type::comment) &&
-                                        (preserveProcessingInstructions || node.getType() != Node::Type::processingInstruction))
-                                        result.pushBack(node);
-                                }
+                                if ((preserveComments || node.getType() != Node::Type::comment) &&
+                                    (preserveProcessingInstructions || node.getType() != Node::Type::processingInstruction))
+                                    result.pushBack(node);
                             }
                         }
                     }
                 }
-                else
-                {
-                    result = Node::Type::text;
-
-                    std::string value;
-                    for (;;)
-                    {
-                        if (iterator == end || // end of a file
-                            *iterator == '<') // start of a tag
-                            break;
-                        else if (*iterator == '&')
-                        {
-                            const auto entity = parseReference(iterator, end);
-                            value += entity;
-                        }
-                        else
-                        {
-                            value += fromUtf32(*iterator);
-                            ++iterator;
-                        }
-                    }
-                    result.setValue(value);
-                }
 
                 return result;
+            }
+
+            static Node parseText(std::u32string::const_iterator& iterator,
+                                  std::u32string::const_iterator end)
+            {
+                Node result;
+                result = Node::Type::text;
+
+                std::string value;
+                for (;;)
+                {
+                    if (iterator == end || // end of a file
+                        *iterator == '<') // start of a tag
+                        break;
+                    else if (*iterator == '&')
+                    {
+                        const auto entity = parseReference(iterator, end);
+                        value += entity;
+                    }
+                    else
+                    {
+                        value += fromUtf32(*iterator);
+                        ++iterator;
+                    }
+                }
+                result.setValue(value);
+                return result;
+            }
+
+            static Node parse(std::u32string::const_iterator& iterator,
+                              std::u32string::const_iterator end,
+                              bool preserveWhitespaces,
+                              bool preserveComments,
+                              bool preserveProcessingInstructions,
+                              bool prologAllowed)
+            {
+
+                if (iterator == end)
+                    throw ParseError{"Unexpected end of data"};
+
+                if (*iterator == '<')
+                    return parseElement(iterator, end,
+                                        preserveWhitespaces,
+                                        preserveComments,
+                                        preserveProcessingInstructions,
+                                        prologAllowed);
+                else
+                    return parseText(iterator, end);
             }
         };
 
