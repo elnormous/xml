@@ -695,9 +695,6 @@ namespace xml
                             if (++iterator == end)
                                 throw ParseError{ "Unexpected end of data" };
                         }
-
-                        if (*iterator != '?')
-                            throw ParseError{ "Unexpected end of data" };
                         
                         if (++iterator == end)
                             throw ParseError{"Unexpected end of data"};
