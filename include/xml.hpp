@@ -392,6 +392,19 @@ namespace xml
                     ++iterator;
             }
 
+            static void expect(std::u32string::const_iterator& iterator,
+                               std::u32string::const_iterator end,
+                               const char32_t c)
+            {
+                if (iterator == end)
+                    throw ParseError{"Unexpected end of data"};
+
+                if (*iterator != c)
+                    throw ParseError{"Unexpected character"};
+
+                ++iterator;
+            }
+
             static std::string parseName(std::u32string::const_iterator& iterator,
                                          std::u32string::const_iterator end)
             {
@@ -546,19 +559,10 @@ namespace xml
             static Node parseDtdElement(std::u32string::const_iterator& iterator,
                                         std::u32string::const_iterator end)
             {
+                expect(iterator, end, '<');
+                expect(iterator, end, '!');
+
                 if (iterator == end)
-                    throw ParseError{"Unexpected end of data"};
-
-                if (*iterator != '<')
-                    throw ParseError{"Expected a left angle bracket"};
-
-                if (++iterator == end)
-                    throw ParseError{"Unexpected end of data"};
-
-                if (*iterator != '!')
-                    throw ParseError{"Expected an exclamation mark"};
-
-                if (++iterator == end)
                     throw ParseError{"Unexpected end of data"};
 
                 Node result;
@@ -600,10 +604,9 @@ namespace xml
                                      bool preserveProcessingInstructions,
                                      bool prologAllowed)
             {
-                if (*iterator != '<') // <
-                    throw ParseError{"Expected a left angle bracket"};
+                expect(iterator, end, '<');
 
-                if (++iterator == end)
+                if (iterator == end)
                     throw ParseError{"Unexpected end of data"};
 
                 Node result;
@@ -615,18 +618,16 @@ namespace xml
 
                     if (*iterator == '-') // <!-
                     {
-                        if (++iterator == end)
-                            throw ParseError{"Unexpected end of data"};
+                        ++iterator;
 
-                        if (*iterator != '-') // <!--
-                            throw ParseError{"Expected a comment"};
+                        expect(iterator, end, '-'); // <!--
 
                         result = Node::Type::comment;
 
                         std::string value;
                         for (;;)
                         {
-                            if (std::distance(++iterator, end) < 3)
+                            if (std::distance(iterator, end) < 3)
                                 throw ParseError{"Unexpected end of data"};
 
                             if (*iterator == '-')
@@ -646,6 +647,7 @@ namespace xml
                             }
 
                             value += fromUtf32(*iterator);
+                            ++iterator;
                         }
 
                         result.setValue(value);
@@ -662,15 +664,14 @@ namespace xml
                         if (iterator == end)
                             throw ParseError{"Unexpected end of data"};
 
-                        if (*iterator != '[')
-                            throw ParseError{"Expected a left bracket"};
+                        expect(iterator, end, '[');
 
                         result = Node::Type::characterData;
 
                         std::string value;
                         for (;;)
                         {
-                            if (std::distance(++iterator, end) < 3)
+                            if (std::distance(iterator, end) < 3)
                                 throw ParseError{"Unexpected end of data"};
 
                             if (*iterator == ']' &&
@@ -682,6 +683,7 @@ namespace xml
                             }
 
                             value += fromUtf32(*iterator);
+                            ++iterator;
                         }
                         result.setValue(value);
                     }
@@ -786,10 +788,7 @@ namespace xml
                     if (++iterator == end)
                         throw ParseError{"Unexpected end of data"};
 
-                    if (*iterator != '>')
-                        throw ParseError{"Expected a right angle bracket"};
-
-                    ++iterator;
+                    expect(iterator, end, '>');
 
                     result.setValue(value);
                 }
@@ -814,14 +813,11 @@ namespace xml
                         }
                         else if (*iterator == '/')
                         {
-                            if (++iterator == end)
-                                throw ParseError{"Unexpected end of data"};
+                            ++iterator;
 
-                            if (*iterator != '>') // />
-                                throw ParseError{"Expected a right angle bracket"};
+                            expect(iterator, end, '>');
 
                             tagClosed = true;
-                            ++iterator;
                             break;
                         }
 
@@ -829,13 +825,7 @@ namespace xml
 
                         skipWhitespaces(iterator, end);
 
-                        if (iterator == end)
-                            throw ParseError{"Unexpected end of data"};
-
-                        if (*iterator != '=')
-                            throw ParseError{"Expected an equal sign"};
-
-                        ++iterator;
+                        expect(iterator, end, '=');
 
                         skipWhitespaces(iterator, end);
 
@@ -861,14 +851,7 @@ namespace xml
                                 if (const auto tag = parseName(iterator, end); tag != result.getName())
                                     throw ParseError{"Tag not closed properly"};
 
-                                if (iterator == end)
-                                    throw ParseError{"Unexpected end of data"};
-
-                                if (*iterator != '>')
-                                    throw ParseError{"Expected a right angle bracket"};
-
-                                ++iterator;
-
+                                expect(iterator, end, '>');
                                 break;
                             }
                             else
