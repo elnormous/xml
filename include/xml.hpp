@@ -39,6 +39,7 @@ namespace xml
             documentTypeDefinition,
             element,
             attributeList,
+            entity,
             tag,
             text
         };
@@ -576,6 +577,10 @@ namespace xml
                 else if (type == "ATTLIST")
                 {
                     result = Node::Type::attributeList;
+                }
+                else if (type == "ENTITY")
+                {
+                    result = Node::Type::entity;
                 }
 
                 skipWhitespaces(iterator, end);

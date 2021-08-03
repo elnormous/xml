@@ -273,6 +273,24 @@ TEST_CASE("Document type definition with attribute list", "[parsing]")
     REQUIRE(childNode.getName() == "test");
 }
 
+TEST_CASE("Document type definition with entity", "[parsing]")
+{
+    const xml::Data d = xml::parse("<!DOCTYPE test [<!ENTITY test 'test'>]><root></root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::documentTypeDefinition);
+
+    const auto& firstChild = node.begin();
+    REQUIRE(firstChild != node.end());
+
+    const auto& childNode = *firstChild;
+    REQUIRE(childNode.getType() == xml::Node::Type::entity);
+    REQUIRE(childNode.getName() == "test");
+}
+
 TEST_CASE("Encoding", "[encoding]")
 {
     xml::Data d;
