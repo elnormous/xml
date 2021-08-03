@@ -291,6 +291,24 @@ TEST_CASE("Document type definition with entity", "[parsing]")
     REQUIRE(childNode.getName() == "test");
 }
 
+TEST_CASE("Document type definition with notation", "[parsing]")
+{
+    const xml::Data d = xml::parse("<!DOCTYPE test [<!NOTATION test PUBLIC 'test'>]><root></root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::documentTypeDefinition);
+
+    const auto& firstChild = node.begin();
+    REQUIRE(firstChild != node.end());
+
+    const auto& childNode = *firstChild;
+    REQUIRE(childNode.getType() == xml::Node::Type::notation);
+    REQUIRE(childNode.getName() == "test");
+}
+
 TEST_CASE("Encoding", "[encoding]")
 {
     xml::Data d;

@@ -40,6 +40,7 @@ namespace xml
             element,
             attributeList,
             entity,
+            notation,
             tag,
             text
         };
@@ -581,6 +582,10 @@ namespace xml
                 else if (type == "ENTITY")
                 {
                     result = Node::Type::entity;
+                }
+                else if (type == "NOTATION")
+                {
+                    result = Node::Type::notation;
                 }
 
                 skipWhitespaces(iterator, end);
