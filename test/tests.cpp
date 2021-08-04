@@ -309,7 +309,7 @@ TEST_CASE("Document type definition with notation", "[parsing]")
     REQUIRE(childNode.getName() == "test");
 }
 
-TEST_CASE("Encoding", "[encoding]")
+TEST_CASE("Processing instruction encoding", "[encoding]")
 {
     xml::Data d;
     xml::Node p(xml::Node::Type::processingInstruction);
@@ -318,16 +318,55 @@ TEST_CASE("Encoding", "[encoding]")
     d.pushBack(p);
 
     xml::Node n(xml::Node::Type::tag);
+    n.setName("root");
+    d.pushBack(n);
+
+    REQUIRE(xml::encode(d) == "<?xml version=\"1.0\" encoding=\"utf-8\"?><root/>");
+    REQUIRE(xml::encode(d, true) == "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<root/>\n");
+}
+
+TEST_CASE("Attribute encoding", "[encoding]")
+{
+    xml::Data d;
+
+    xml::Node n(xml::Node::Type::tag);
     n.setName("n");
     n.setAttributes({{"a", "a"}, {"b", "b"}});
+    d.pushBack(n);
+
+    REQUIRE(xml::encode(d) == "<n a=\"a\" b=\"b\"/>");
+    REQUIRE(xml::encode(d, true) == "<n a=\"a\" b=\"b\"/>\n");
+}
+
+TEST_CASE("Text encoding", "[encoding]")
+{
+    xml::Data d;
+
+    xml::Node n(xml::Node::Type::tag);
+    n.setName("n");
+
+    xml::Node t(xml::Node::Type::text);
+    t.setValue("text");
+    n.pushBack(t);
+
+    d.pushBack(n);
+
+    REQUIRE(xml::encode(d) == "<n>text</n>");
+    REQUIRE(xml::encode(d, true) == "<n>\n\ttext\n</n>\n");
+}
+
+TEST_CASE("Nesting", "[encoding]")
+{
+    xml::Data d;
+
+    xml::Node n(xml::Node::Type::tag);
+    n.setName("n");
 
     xml::Node c1(xml::Node::Type::tag);
     c1.setName("c1");
-    c1.setAttributes({{"c", "c"}});
 
     xml::Node c2(xml::Node::Type::tag);
     c2.setName("c2");
-    c2.setAttributes({{"dd", "dd"}});
 
     xml::Node t(xml::Node::Type::text);
     t.setValue("text");
@@ -337,8 +376,8 @@ TEST_CASE("Encoding", "[encoding]")
     n.pushBack(c2);
     d.pushBack(n);
 
-    REQUIRE(xml::encode(d) == "<?xml version=\"1.0\" encoding=\"utf-8\"?><n a=\"a\" b=\"b\"><c1 c=\"c\">text</c1><c2 dd=\"dd\"/></n>");
-    REQUIRE(xml::encode(d, true) == "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<n a=\"a\" b=\"b\">\n\t<c1 c=\"c\">\n\t\ttext\n\t</c1>\n\t<c2 dd=\"dd\"/>\n</n>\n");
+    REQUIRE(xml::encode(d) == "<n><c1>text</c1><c2/></n>");
+    REQUIRE(xml::encode(d, true) == "<n>\n\t<c1>\n\t\ttext\n\t</c1>\n\t<c2/>\n</n>\n");
 }
 
 TEST_CASE("IllegalCharacters", "[errors]")
