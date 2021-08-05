@@ -1047,6 +1047,21 @@ namespace xml
                         result.insert(result.end(), {'?', '>'});
                         break;
                     }
+                    case Node::Type::documentTypeDefinition:
+                    {
+                        const auto& name = node.getName();
+                        result.insert(result.end(), {'<', '!', 'D', 'O', 'C', 'T', 'Y', 'P', 'E', ' '});
+                        result.insert(result.end(), name.begin(), name.end());
+
+                        const auto& value = node.getValue();
+                        if (!value.empty())
+                        {
+                            result.insert(result.end(), ' ');
+                            result.insert(result.end(), value.begin(), value.end());
+                        }
+                        result.insert(result.end(), {'>'});
+                        break;
+                    }
                     case Node::Type::tag:
                     {
                         const auto& name = node.getName();

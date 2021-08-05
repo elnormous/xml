@@ -380,6 +380,19 @@ TEST_CASE("Nesting", "[encoding]")
     REQUIRE(xml::encode(d, true) == "<n>\n\t<c1>\n\t\ttext\n\t</c1>\n\t<c2/>\n</n>\n");
 }
 
+TEST_CASE("Doctype encoding", "[encoding]")
+{
+    xml::Data d;
+
+    xml::Node n(xml::Node::Type::documentTypeDefinition);
+    n.setName("test");
+    n.setValue("test");
+    d.pushBack(n);
+
+    REQUIRE(xml::encode(d) == "<!DOCTYPE test test>");
+    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test>\n");
+}
+
 TEST_CASE("IllegalCharacters", "[errors]")
 {
     REQUIRE_THROWS_AS(xml::parse("<root>&</root>", true, true, true), xml::ParseError);
