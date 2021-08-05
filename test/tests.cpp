@@ -412,6 +412,63 @@ TEST_CASE("Doctype element encoding", "[encoding]")
     REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test [\n\t<!ELEMENT test test>\n]>\n");
 }
 
+TEST_CASE("Doctype attlist encoding", "[encoding]")
+{
+    xml::Data d;
+
+    xml::Node n(xml::Node::Type::documentTypeDefinition);
+    n.setName("test");
+    n.setValue("test");
+
+    xml::Node e(xml::Node::Type::attributeList);
+    e.setName("test");
+    e.setValue("test");
+    n.pushBack(e);
+
+    d.pushBack(n);
+
+    REQUIRE(xml::encode(d) == "<!DOCTYPE test test [<!ATTLIST test test>]>");
+    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test [\n\t<!ATTLIST test test>\n]>\n");
+}
+
+TEST_CASE("Doctype entity encoding", "[encoding]")
+{
+    xml::Data d;
+
+    xml::Node n(xml::Node::Type::documentTypeDefinition);
+    n.setName("test");
+    n.setValue("test");
+
+    xml::Node e(xml::Node::Type::entity);
+    e.setName("test");
+    e.setValue("test");
+    n.pushBack(e);
+
+    d.pushBack(n);
+
+    REQUIRE(xml::encode(d) == "<!DOCTYPE test test [<!ENTITY test test>]>");
+    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test [\n\t<!ENTITY test test>\n]>\n");
+}
+
+TEST_CASE("Doctype notation encoding", "[encoding]")
+{
+    xml::Data d;
+
+    xml::Node n(xml::Node::Type::documentTypeDefinition);
+    n.setName("test");
+    n.setValue("test");
+
+    xml::Node e(xml::Node::Type::notation);
+    e.setName("test");
+    e.setValue("test");
+    n.pushBack(e);
+
+    d.pushBack(n);
+
+    REQUIRE(xml::encode(d) == "<!DOCTYPE test test [<!NOTATION test test>]>");
+    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test [\n\t<!NOTATION test test>\n]>\n");
+}
+
 TEST_CASE("IllegalCharacters", "[errors]")
 {
     REQUIRE_THROWS_AS(xml::parse("<root>&</root>", true, true, true), xml::ParseError);

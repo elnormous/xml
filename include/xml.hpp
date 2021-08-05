@@ -1095,6 +1095,51 @@ namespace xml
                         result.insert(result.end(), '>');
                         break;
                     }
+                    case Node::Type::attributeList:
+                    {
+                        const auto& name = node.getName();
+                        result.insert(result.end(), {'<', '!', 'A', 'T', 'T', 'L', 'I', 'S', 'T', ' '});
+                        result.insert(result.end(), name.begin(), name.end());
+
+                        const auto& value = node.getValue();
+                        if (!value.empty())
+                        {
+                            result.insert(result.end(), ' ');
+                            result.insert(result.end(), value.begin(), value.end());
+                        }
+                        result.insert(result.end(), '>');
+                        break;
+                    }
+                    case Node::Type::entity:
+                    {
+                        const auto& name = node.getName();
+                        result.insert(result.end(), {'<', '!', 'E', 'N', 'T', 'I', 'T', 'Y', ' '});
+                        result.insert(result.end(), name.begin(), name.end());
+
+                        const auto& value = node.getValue();
+                        if (!value.empty())
+                        {
+                            result.insert(result.end(), ' ');
+                            result.insert(result.end(), value.begin(), value.end());
+                        }
+                        result.insert(result.end(), '>');
+                        break;
+                    }
+                    case Node::Type::notation:
+                    {
+                        const auto& name = node.getName();
+                        result.insert(result.end(), {'<', '!', 'N', 'O', 'T', 'A', 'T', 'I', 'O', 'N', ' '});
+                        result.insert(result.end(), name.begin(), name.end());
+
+                        const auto& value = node.getValue();
+                        if (!value.empty())
+                        {
+                            result.insert(result.end(), ' ');
+                            result.insert(result.end(), value.begin(), value.end());
+                        }
+                        result.insert(result.end(), '>');
+                        break;
+                    }
                     case Node::Type::tag:
                     {
                         const auto& name = node.getName();
