@@ -393,6 +393,25 @@ TEST_CASE("Doctype encoding", "[encoding]")
     REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test>\n");
 }
 
+TEST_CASE("Doctype element encoding", "[encoding]")
+{
+    xml::Data d;
+
+    xml::Node n(xml::Node::Type::documentTypeDefinition);
+    n.setName("test");
+    n.setValue("test");
+
+    xml::Node e(xml::Node::Type::element);
+    e.setName("test");
+    e.setValue("test");
+    n.pushBack(e);
+
+    d.pushBack(n);
+
+    REQUIRE(xml::encode(d) == "<!DOCTYPE test test [<!ELEMENT test test>]>");
+    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test [\n\t<!ELEMENT test test>\n]>\n");
+}
+
 TEST_CASE("IllegalCharacters", "[errors]")
 {
     REQUIRE_THROWS_AS(xml::parse("<root>&</root>", true, true, true), xml::ParseError);

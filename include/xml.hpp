@@ -1059,7 +1059,40 @@ namespace xml
                             result.insert(result.end(), ' ');
                             result.insert(result.end(), value.begin(), value.end());
                         }
-                        result.insert(result.end(), {'>'});
+
+                        if (const auto& children = node.getChildren(); !children.empty())
+                        {
+                            result.insert(result.end(), {' ', '['});
+                            if (whitespaces) result.push_back('\n');
+
+                            for (const Node& child : children)
+                            {
+                                if (whitespaces) result.insert(result.end(), level + 1, '\t');
+                                encode(child, result, whitespaces, level + 1);
+                                if (whitespaces) result.push_back('\n');
+                            }
+
+                            if (whitespaces) result.insert(result.end(), level, '\t');
+                            result.insert(result.end(), ']');
+                        }
+
+                        result.insert(result.end(), '>');
+
+                        break;
+                    }
+                    case Node::Type::element:
+                    {
+                        const auto& name = node.getName();
+                        result.insert(result.end(), {'<', '!', 'E', 'L', 'E', 'M', 'E', 'N', 'T', ' '});
+                        result.insert(result.end(), name.begin(), name.end());
+
+                        const auto& value = node.getValue();
+                        if (!value.empty())
+                        {
+                            result.insert(result.end(), ' ');
+                            result.insert(result.end(), value.begin(), value.end());
+                        }
+                        result.insert(result.end(), '>');
                         break;
                     }
                     case Node::Type::tag:
@@ -1078,9 +1111,7 @@ namespace xml
                             result.insert(result.end(), '"');
                         }
 
-                        if (const auto& children = node.getChildren(); children.empty())
-                            result.insert(result.end(), {'/', '>'});
-                        else
+                        if (const auto& children = node.getChildren(); !children.empty())
                         {
                             result.insert(result.end(), '>');
                             if (whitespaces) result.push_back('\n');
@@ -1097,6 +1128,8 @@ namespace xml
                             result.insert(result.end(), name.begin(), name.end());
                             result.insert(result.end(), '>');
                         }
+                        else
+                            result.insert(result.end(), {'/', '>'});
                         break;
                     }
                     case Node::Type::text:
