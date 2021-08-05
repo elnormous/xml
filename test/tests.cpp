@@ -237,6 +237,19 @@ TEST_CASE("Document type definition", "[parsing]")
     REQUIRE(node.getName() == "test");
 }
 
+TEST_CASE("Document type definition with empty list and whitespace", "[parsing]")
+{
+    const xml::Data d = xml::parse("<!DOCTYPE test [] ><root></root>", true, true, true);
+
+    const auto first = d.begin();
+    REQUIRE(first != d.end());
+
+    const auto& node = *first;
+    REQUIRE(node.getType() == xml::Node::Type::documentTypeDefinition);
+    REQUIRE(node.getName() == "test");
+    REQUIRE(node.getChildren().empty());
+}
+
 TEST_CASE("Document type definition with elements", "[parsing]")
 {
     const xml::Data d = xml::parse("<!DOCTYPE test [<!ELEMENT test (a)>]><root></root>", true, true, true);
