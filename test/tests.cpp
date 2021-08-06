@@ -227,7 +227,7 @@ TEST_CASE("Character data", "[parsing]")
 
 TEST_CASE("Document type definition", "[parsing]")
 {
-    const xml::Data d = xml::parse("<!DOCTYPE test><root></root>", true, true, true);
+    const xml::Data d = xml::parse("<!DOCTYPE test SYSTEM \"test.dtd\"><root></root>", true, true, true);
 
     const auto first = d.begin();
     REQUIRE(first != d.end());
@@ -235,6 +235,7 @@ TEST_CASE("Document type definition", "[parsing]")
     const auto& node = *first;
     REQUIRE(node.getType() == xml::Node::Type::documentTypeDefinition);
     REQUIRE(node.getName() == "test");
+    REQUIRE(node.getValue() == "SYSTEM \"test.dtd\"");
 }
 
 TEST_CASE("Document type definition with empty list and whitespace", "[parsing]")
@@ -399,11 +400,11 @@ TEST_CASE("Doctype encoding", "[encoding]")
 
     xml::Node n(xml::Node::Type::documentTypeDefinition);
     n.setName("test");
-    n.setValue("test");
+    n.setValue("SYSTEM \"test.dtd\"");
     d.pushBack(n);
 
-    REQUIRE(xml::encode(d) == "<!DOCTYPE test test>");
-    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test>\n");
+    REQUIRE(xml::encode(d) == "<!DOCTYPE test SYSTEM \"test.dtd\">");
+    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test SYSTEM \"test.dtd\">\n");
 }
 
 TEST_CASE("Doctype element encoding", "[encoding]")
@@ -412,7 +413,7 @@ TEST_CASE("Doctype element encoding", "[encoding]")
 
     xml::Node n(xml::Node::Type::documentTypeDefinition);
     n.setName("test");
-    n.setValue("test");
+    n.setValue("SYSTEM \"test.dtd\"");
 
     xml::Node e(xml::Node::Type::element);
     e.setName("test");
@@ -421,8 +422,8 @@ TEST_CASE("Doctype element encoding", "[encoding]")
 
     d.pushBack(n);
 
-    REQUIRE(xml::encode(d) == "<!DOCTYPE test test [<!ELEMENT test test>]>");
-    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test [\n\t<!ELEMENT test test>\n]>\n");
+    REQUIRE(xml::encode(d) == "<!DOCTYPE test SYSTEM \"test.dtd\" [<!ELEMENT test test>]>");
+    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test SYSTEM \"test.dtd\" [\n\t<!ELEMENT test test>\n]>\n");
 }
 
 TEST_CASE("Doctype attlist encoding", "[encoding]")
@@ -431,7 +432,7 @@ TEST_CASE("Doctype attlist encoding", "[encoding]")
 
     xml::Node n(xml::Node::Type::documentTypeDefinition);
     n.setName("test");
-    n.setValue("test");
+    n.setValue("SYSTEM \"test.dtd\"");
 
     xml::Node e(xml::Node::Type::attributeList);
     e.setName("test");
@@ -440,8 +441,8 @@ TEST_CASE("Doctype attlist encoding", "[encoding]")
 
     d.pushBack(n);
 
-    REQUIRE(xml::encode(d) == "<!DOCTYPE test test [<!ATTLIST test test>]>");
-    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test test [\n\t<!ATTLIST test test>\n]>\n");
+    REQUIRE(xml::encode(d) == "<!DOCTYPE test SYSTEM \"test.dtd\" [<!ATTLIST test test>]>");
+    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test SYSTEM \"test.dtd\" [\n\t<!ATTLIST test test>\n]>\n");
 }
 
 TEST_CASE("Doctype entity encoding", "[encoding]")
