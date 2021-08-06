@@ -34,7 +34,6 @@ namespace xml
         {
             comment,
             characterData,
-            typeDeclaration,
             processingInstruction,
             documentTypeDefinition,
             element,
@@ -1033,8 +1032,6 @@ namespace xml
                         result.insert(result.end(), {']', ']', '>'});
                         break;
                     }
-                    case Node::Type::typeDeclaration:
-                        throw ParseError{"Type declarations are not supported"};
                     case Node::Type::processingInstruction:
                     {
                         const auto& name = node.getName();
