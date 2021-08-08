@@ -44,6 +44,13 @@ namespace xml
             text
         };
 
+        enum class ExternalIdType
+        {
+            none,
+            systemId,
+            publicId
+        };
+
         Node() = default;
         Node(Type initType): type{initType} {}
         Node(std::string&& val) noexcept: type{Type::text}, value{std::move(val)} {}
@@ -121,6 +128,9 @@ namespace xml
         const auto& getName() const noexcept { return name; }
         void setName(const std::string_view newName) { name = newName; }
 
+        const auto& getExternalIdType() const noexcept { return externalIdType; }
+        void setExternalIdType(const ExternalIdType newExternalIdType) { externalIdType = newExternalIdType; }
+
         const auto& getValue() const noexcept { return value; }
         void setValue(const std::string_view newValue) { value = newValue; }
 
@@ -130,6 +140,7 @@ namespace xml
     private:
         Type type = Type::tag;
         std::string name;
+        ExternalIdType externalIdType;
         std::string value;
         Attributes attributes;
         std::vector<Node> children;
@@ -1049,6 +1060,17 @@ namespace xml
                         const auto& name = node.getName();
                         result.insert(result.end(), {'<', '!', 'D', 'O', 'C', 'T', 'Y', 'P', 'E', ' '});
                         result.insert(result.end(), name.begin(), name.end());
+
+                        switch (node.getExternalIdType())
+                        {
+                            case Node::ExternalIdType::none: break;
+                            case Node::ExternalIdType::systemId:
+                                result.insert(result.end(), {' ', 'S', 'Y', 'S', 'T', 'E', 'M'});
+                                break;
+                            case Node::ExternalIdType::publicId:
+                                result.insert(result.end(), {' ', 'P', 'U', 'B', 'L', 'I', 'C'});
+                                break;
+                        }
 
                         const auto& value = node.getValue();
                         if (!value.empty())

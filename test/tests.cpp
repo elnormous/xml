@@ -394,17 +394,32 @@ TEST_CASE("Nesting", "[encoding]")
     REQUIRE(xml::encode(d, true) == "<n>\n\t<c1>\n\t\ttext\n\t</c1>\n\t<c2/>\n</n>\n");
 }
 
-TEST_CASE("Doctype encoding", "[encoding]")
+TEST_CASE("Doctype with system Id encoding", "[encoding]")
 {
     xml::Data d;
 
     xml::Node n(xml::Node::Type::documentTypeDefinition);
     n.setName("test");
-    n.setValue("SYSTEM \"test.dtd\"");
+    n.setExternalIdType(xml::Node::ExternalIdType::systemId);
+    n.setValue("\"test.dtd\"");
     d.pushBack(n);
 
     REQUIRE(xml::encode(d) == "<!DOCTYPE test SYSTEM \"test.dtd\">");
     REQUIRE(xml::encode(d, true) == "<!DOCTYPE test SYSTEM \"test.dtd\">\n");
+}
+
+TEST_CASE("Doctype with public Id encoding", "[encoding]")
+{
+    xml::Data d;
+
+    xml::Node n(xml::Node::Type::documentTypeDefinition);
+    n.setName("test");
+    n.setExternalIdType(xml::Node::ExternalIdType::publicId);
+    n.setValue("\"\" \"test.dtd\"");
+    d.pushBack(n);
+
+    REQUIRE(xml::encode(d) == "<!DOCTYPE test PUBLIC \"\" \"test.dtd\">");
+    REQUIRE(xml::encode(d, true) == "<!DOCTYPE test PUBLIC \"\" \"test.dtd\">\n");
 }
 
 TEST_CASE("Doctype element encoding", "[encoding]")
