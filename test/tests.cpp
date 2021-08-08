@@ -146,7 +146,7 @@ TEST_CASE("Text", "[parsing]")
 
 TEST_CASE("Attributes", "[parsing]")
 {
-    const xml::Data d = xml::parse("<root test=\"t\" test2=\"1\"></root>", true, true, true);
+    const xml::Data d = xml::parse("<root test=\"t\" test2=\'1\'></root>", true, true, true);
 
     const auto first = d.begin();
     const auto& node = *first;
