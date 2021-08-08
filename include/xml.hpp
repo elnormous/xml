@@ -552,8 +552,6 @@ namespace xml
                         const auto entity = parseReference(iterator, end);
                         result += entity;
                     }
-                    else if (*iterator == '<')
-                        throw ParseError{"Illegal character"};
                     else
                     {
                         result += fromUtf32(*iterator);

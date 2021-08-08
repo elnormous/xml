@@ -146,7 +146,7 @@ TEST_CASE("Text", "[parsing]")
 
 TEST_CASE("Attributes", "[parsing]")
 {
-    const xml::Data d = xml::parse("<root test=\"t'\" test2='1\"'></root>", true, true, true);
+    const xml::Data d = xml::parse("<root test=\"t'\" test2='1\"<>'></root>", true, true, true);
 
     const auto first = d.begin();
     const auto& node = *first;
@@ -162,7 +162,7 @@ TEST_CASE("Attributes", "[parsing]")
     
     const auto& secondAttribute = *attributeIterator;
     REQUIRE(secondAttribute.first == "test2");
-    REQUIRE(secondAttribute.second == "1\"");
+    REQUIRE(secondAttribute.second == "1\"<>");
 }
 
 TEST_CASE("EntityReferences", "[parsing]")
@@ -502,7 +502,7 @@ TEST_CASE("Doctype notation encoding", "[encoding]")
 TEST_CASE("IllegalCharacters", "[errors]")
 {
     REQUIRE_THROWS_AS(xml::parse("<root>&</root>", true, true, true), xml::ParseError);
-    REQUIRE_THROWS_AS(xml::parse("<root a=\"<\"></root>", true, true, true), xml::ParseError);
+    REQUIRE_THROWS_AS(xml::parse("<root><</root>", true, true, true), xml::ParseError);
 }
 
 TEST_CASE("Illegal processing instruction", "[errors]")
