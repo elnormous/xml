@@ -405,7 +405,7 @@ TEST_CASE("Doctype with system Id encoding", "[encoding]")
 
     xml::Node n(xml::Node::Type::documentTypeDefinition);
     n.setName("test");
-    n.setExternalIdType(xml::Node::ExternalIdType::systemId);
+    n.setExternalIdType(xml::Node::ExternalIdType::system);
     n.setValue("\"test.dtd\"");
     d.pushBack(n);
 
@@ -419,7 +419,7 @@ TEST_CASE("Doctype with public Id encoding", "[encoding]")
 
     xml::Node n(xml::Node::Type::documentTypeDefinition);
     n.setName("test");
-    n.setExternalIdType(xml::Node::ExternalIdType::publicId);
+    n.setExternalIdType(xml::Node::ExternalIdType::pub);
     n.setValue("\"\" \"test.dtd\"");
     d.pushBack(n);
 

@@ -47,8 +47,8 @@ namespace xml
         enum class ExternalIdType
         {
             none,
-            systemId,
-            publicId
+            system,
+            pub
         };
 
         Node() = default;
@@ -1062,10 +1062,10 @@ namespace xml
                         switch (node.getExternalIdType())
                         {
                             case Node::ExternalIdType::none: break;
-                            case Node::ExternalIdType::systemId:
+                            case Node::ExternalIdType::system:
                                 result.insert(result.end(), {' ', 'S', 'Y', 'S', 'T', 'E', 'M'});
                                 break;
-                            case Node::ExternalIdType::publicId:
+                            case Node::ExternalIdType::pub:
                                 result.insert(result.end(), {' ', 'P', 'U', 'B', 'L', 'I', 'C'});
                                 break;
                         }
