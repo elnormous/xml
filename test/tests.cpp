@@ -146,18 +146,23 @@ TEST_CASE("Text", "[parsing]")
 
 TEST_CASE("Attributes", "[parsing]")
 {
-    const xml::Data d = xml::parse("<root test=\"t\" test2=\'1\'></root>", true, true, true);
+    const xml::Data d = xml::parse("<root test=\"t'\" test2='1\"'></root>", true, true, true);
 
     const auto first = d.begin();
     const auto& node = *first;
 
-    const auto firstAttribute = node.getAttributes().begin();
-    REQUIRE(firstAttribute != node.getAttributes().end());
+    auto attributeIterator = node.getAttributes().begin();
+    REQUIRE(attributeIterator != node.getAttributes().end());
 
-    const auto& attribute = *firstAttribute;
-    REQUIRE(attribute.first == "test");
-
-    REQUIRE(attribute.second == "t");
+    const auto& firstAttribute = *attributeIterator;
+    REQUIRE(firstAttribute.first == "test");
+    REQUIRE(firstAttribute.second == "t'");
+    
+    REQUIRE(++attributeIterator != node.getAttributes().end());
+    
+    const auto& secondAttribute = *attributeIterator;
+    REQUIRE(secondAttribute.first == "test2");
+    REQUIRE(secondAttribute.second == "1\"");
 }
 
 TEST_CASE("EntityReferences", "[parsing]")
