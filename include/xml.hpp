@@ -965,7 +965,8 @@ namespace xml
                bool preserveComments = false,
                bool preserveProcessingInstructions = false)
     {
-        return parse(std::begin(data), std::end(data),
+        using std::begin, std::end; // add std::begin and std::end to lookup
+        return parse(begin(data), end(data),
                      preserveWhitespaces,
                      preserveComments,
                      preserveProcessingInstructions);
