@@ -1,5 +1,3 @@
-// Copyright 2015-2020 Elviss Strazdins. All rights reserved.
-
 #ifndef XML_HPP
 #define XML_HPP
 
