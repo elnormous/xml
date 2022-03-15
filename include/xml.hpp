@@ -50,13 +50,13 @@ namespace xml
         };
 
         Node() = default;
-        Node(Type initType): type{initType} {}
+        Node(const Type initType): type{initType} {}
         Node(std::string&& val) noexcept: type{Type::text}, value{std::move(val)} {}
 
         template <class Source>
         Node(const Source& val): type{Type::text}, value{std::string{val}} {}
 
-        Node& operator=(Type newType) noexcept
+        Node& operator=(const Type newType) noexcept
         {
             type = newType;
             return *this;
@@ -78,7 +78,7 @@ namespace xml
         }
 
         Type getType() const noexcept { return type; }
-        void setType(Type newType) noexcept { type = newType; }
+        void setType(const Type newType) noexcept { type = newType; }
 
         auto begin() noexcept
         {
