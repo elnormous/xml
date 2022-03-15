@@ -182,7 +182,7 @@ namespace xml
     }
 
     template <class Iterator>
-    Data parse(Iterator begin, Iterator end,
+    Data parse(const Iterator begin, const Iterator end,
                bool preserveWhitespaces = false,
                bool preserveComments = false,
                bool preserveProcessingInstructions = false)
@@ -190,7 +190,7 @@ namespace xml
         class Parser final
         {
         public:
-            static std::u32string toUtf32(Iterator begin, Iterator end)
+            static std::u32string toUtf32(const Iterator begin, const Iterator end)
             {
                 std::u32string result;
 
@@ -264,8 +264,8 @@ namespace xml
                 return result;
             }
 
-            static std::string fromUtf32(std::u32string::const_iterator begin,
-                                         std::u32string::const_iterator end)
+            static std::string fromUtf32(const std::u32string::const_iterator begin,
+                                         const std::u32string::const_iterator end)
             {
                 std::string result;
 
@@ -351,13 +351,12 @@ namespace xml
             }
 
         private:
-            static bool hasByteOrderMark(Iterator begin, Iterator end) noexcept
+            static bool hasByteOrderMark(const Iterator begin, const Iterator end) noexcept
             {
+                auto i = begin;
                 for (const auto b : utf8ByteOrderMark)
-                    if (begin == end || static_cast<std::uint8_t>(*begin) != b)
+                    if (i == end || static_cast<std::uint8_t>(*i++) != b)
                         return false;
-                    else
-                        ++begin;
                 return true;
             }
 
@@ -396,14 +395,14 @@ namespace xml
             }
 
             static void skipWhitespaces(std::u32string::const_iterator& iterator,
-                                        std::u32string::const_iterator end)
+                                        const std::u32string::const_iterator end)
             {
                 while (iterator != end && isWhitespace(*iterator))
                     ++iterator;
             }
 
             static void expect(std::u32string::const_iterator& iterator,
-                               std::u32string::const_iterator end,
+                               const std::u32string::const_iterator end,
                                const char32_t c)
             {
                 if (iterator == end)
@@ -416,7 +415,7 @@ namespace xml
             }
 
             static std::string parseName(std::u32string::const_iterator& iterator,
-                                         std::u32string::const_iterator end)
+                                         const std::u32string::const_iterator end)
             {
                 std::string result;
 
@@ -438,7 +437,7 @@ namespace xml
             }
 
             static std::string parseReference(std::u32string::const_iterator& iterator,
-                                              std::u32string::const_iterator end)
+                                              const std::u32string::const_iterator end)
             {
                 std::string result;
 
@@ -528,7 +527,7 @@ namespace xml
             }
 
             static std::string parseString(std::u32string::const_iterator& iterator,
-                                           std::u32string::const_iterator end)
+                                           const std::u32string::const_iterator end)
             {
                 std::string result;
 
@@ -565,7 +564,7 @@ namespace xml
             }
 
             static Node parseDtdElement(std::u32string::const_iterator& iterator,
-                                        std::u32string::const_iterator end)
+                                        const std::u32string::const_iterator end)
             {
                 expect(iterator, end, '<');
                 expect(iterator, end, '!');
@@ -614,7 +613,7 @@ namespace xml
             }
 
             static Node parseElement(std::u32string::const_iterator& iterator,
-                                     std::u32string::const_iterator end,
+                                     const std::u32string::const_iterator end,
                                      bool preserveWhitespaces,
                                      bool preserveComments,
                                      bool preserveProcessingInstructions,
@@ -890,7 +889,7 @@ namespace xml
             }
 
             static Node parseText(std::u32string::const_iterator& iterator,
-                                  std::u32string::const_iterator end)
+                                  const std::u32string::const_iterator end)
             {
                 Node result;
                 result = Node::Type::text;
@@ -917,7 +916,7 @@ namespace xml
             }
 
             static Node parse(std::u32string::const_iterator& iterator,
-                              std::u32string::const_iterator end,
+                              const std::u32string::const_iterator end,
                               bool preserveWhitespaces,
                               bool preserveComments,
                               bool preserveProcessingInstructions,
