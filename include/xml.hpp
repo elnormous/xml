@@ -236,7 +236,7 @@ namespace xml
                 return result;
             }
 
-            static std::string fromUtf32(char32_t c)
+            static std::string fromUtf32(const char32_t c)
             {
                 std::string result;
 
@@ -301,10 +301,10 @@ namespace xml
                 return fromUtf32(std::begin(text), std::end(text));
             }
 
-            static Data parse(Iterator begin, Iterator end,
-                              bool preserveWhitespaces,
-                              bool preserveComments,
-                              bool preserveProcessingInstructions)
+            static Data parse(const Iterator begin, const const Iterator end,
+                              const bool preserveWhitespaces,
+                              const bool preserveComments,
+                              const bool preserveProcessingInstructions)
             {
                 bool byteOrderMark = hasByteOrderMark(begin, end);
 
@@ -353,6 +353,7 @@ namespace xml
         private:
             static bool hasByteOrderMark(const Iterator begin, const Iterator end) noexcept
             {
+                // RFC-2781, 3.2 Byte order mark (BOM)
                 auto i = begin;
                 for (const auto b : utf8ByteOrderMark)
                     if (i == end || static_cast<std::uint8_t>(*i++) != b)
@@ -614,10 +615,10 @@ namespace xml
 
             static Node parseElement(std::u32string::const_iterator& iterator,
                                      const std::u32string::const_iterator end,
-                                     bool preserveWhitespaces,
-                                     bool preserveComments,
-                                     bool preserveProcessingInstructions,
-                                     bool prologAllowed)
+                                     const bool preserveWhitespaces,
+                                     const bool preserveComments,
+                                     const bool preserveProcessingInstructions,
+                                     const bool prologAllowed)
             {
                 expect(iterator, end, '<');
 
@@ -917,10 +918,10 @@ namespace xml
 
             static Node parse(std::u32string::const_iterator& iterator,
                               const std::u32string::const_iterator end,
-                              bool preserveWhitespaces,
-                              bool preserveComments,
-                              bool preserveProcessingInstructions,
-                              bool prologAllowed)
+                              const bool preserveWhitespaces,
+                              const bool preserveComments,
+                              const bool preserveProcessingInstructions,
+                              const bool prologAllowed)
             {
 
                 if (iterator == end)
@@ -944,9 +945,9 @@ namespace xml
     }
 
     inline Data parse(const char* data,
-                      bool preserveWhitespaces = false,
-                      bool preserveComments = false,
-                      bool preserveProcessingInstructions = false)
+                      const bool preserveWhitespaces = false,
+                      const bool preserveComments = false,
+                      const bool preserveProcessingInstructions = false)
     {
         auto end = data;
         while (*end) ++end;
@@ -958,9 +959,9 @@ namespace xml
 
     template <class T>
     Data parse(const T& data,
-               bool preserveWhitespaces = false,
-               bool preserveComments = false,
-               bool preserveProcessingInstructions = false)
+               const bool preserveWhitespaces = false,
+               const bool preserveComments = false,
+               const bool preserveProcessingInstructions = false)
     {
         using std::begin, std::end; // add std::begin and std::end to lookup
         return parse(begin(data), end(data),
@@ -969,7 +970,9 @@ namespace xml
                      preserveProcessingInstructions);
     }
 
-    inline std::string encode(const Data& data, bool whitespaces = false, bool byteOrderMark = false)
+    inline std::string encode(const Data& data,
+                              const bool whitespaces = false,
+                              const bool byteOrderMark = false)
     {
         class Encoder final
         {
@@ -1019,7 +1022,9 @@ namespace xml
                 }
             }
 
-            static void encode(const Node& node, std::string& result, bool whitespaces, size_t level = 0)
+            static void encode(const Node& node, std::string& result,
+                               const bool whitespaces,
+                               const std::size_t level = 0)
             {
                 switch (node.getType())
                 {
