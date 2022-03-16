@@ -361,7 +361,7 @@ namespace xml
                 return true;
             }
 
-            static constexpr bool isWhitespace(const char32_t c) noexcept
+            static constexpr bool isWhiteSpace(const char32_t c) noexcept
             {
                 return c == ' ' || c == '\t' || c == '\r' || c == '\n';
             }
@@ -398,7 +398,7 @@ namespace xml
             static void skipWhitespaces(std::u32string::const_iterator& iterator,
                                         const std::u32string::const_iterator end)
             {
-                while (iterator != end && isWhitespace(*iterator))
+                while (iterator != end && isWhiteSpace(*iterator))
                     ++iterator;
             }
 
