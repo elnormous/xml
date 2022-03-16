@@ -183,7 +183,7 @@ namespace xml
 
     template <class Iterator>
     Data parse(const Iterator begin, const Iterator end,
-               bool preserveWhitespaces = false,
+               bool preserveWhiteSpaces = false,
                bool preserveComments = false,
                bool preserveProcessingInstructions = false)
     {
@@ -302,7 +302,7 @@ namespace xml
             }
 
             static Data parse(const Iterator begin, const Iterator end,
-                              const bool preserveWhitespaces,
+                              const bool preserveWhiteSpaces,
                               const bool preserveComments,
                               const bool preserveProcessingInstructions)
             {
@@ -317,12 +317,12 @@ namespace xml
 
                 for (;;)
                 {
-                    if (!preserveWhitespaces) skipWhitespaces(iterator, str.end());
+                    if (!preserveWhiteSpaces) skipWhiteSpaces(iterator, str.end());
 
                     if (iterator == str.end()) break;
 
                     const auto node = parse(iterator, str.end(),
-                                            preserveWhitespaces,
+                                            preserveWhiteSpaces,
                                             preserveComments,
                                             preserveProcessingInstructions,
                                             prologAllowed);
@@ -395,7 +395,7 @@ namespace xml
                     (c >= 0x203F && c <= 0x2040);
             }
 
-            static void skipWhitespaces(std::u32string::const_iterator& iterator,
+            static void skipWhiteSpaces(std::u32string::const_iterator& iterator,
                                         const std::u32string::const_iterator end)
             {
                 while (iterator != end && isWhiteSpace(*iterator))
@@ -594,7 +594,7 @@ namespace xml
                     result = Node::Type::notation;
                 }
 
-                skipWhitespaces(iterator, end);
+                skipWhiteSpaces(iterator, end);
 
                 result.setName(parseName(iterator, end));
 
@@ -615,7 +615,7 @@ namespace xml
 
             static Node parseElement(std::u32string::const_iterator& iterator,
                                      const std::u32string::const_iterator end,
-                                     const bool preserveWhitespaces,
+                                     const bool preserveWhiteSpaces,
                                      const bool preserveComments,
                                      const bool preserveProcessingInstructions,
                                      const bool prologAllowed)
@@ -713,12 +713,12 @@ namespace xml
 
                         result = Node::Type::documentTypeDefinition;
 
-                        skipWhitespaces(iterator, end);
+                        skipWhiteSpaces(iterator, end);
 
                         const auto name = parseName(iterator, end);
                         result.setName(name);
 
-                        skipWhitespaces(iterator, end);
+                        skipWhiteSpaces(iterator, end);
                         
                         if (iterator == end)
                             throw ParseError{"Unexpected end of data"};
@@ -728,7 +728,7 @@ namespace xml
                             if (++iterator == end)
                                 throw ParseError{"Unexpected end of data"};
 
-                            skipWhitespaces(iterator, end);
+                            skipWhiteSpaces(iterator, end);
 
                             if (iterator == end)
                                 throw ParseError{"Unexpected end of data"};
@@ -737,7 +737,7 @@ namespace xml
                             {
                                 result.pushBack(parseDtdElement(iterator, end));
 
-                                skipWhitespaces(iterator, end);
+                                skipWhiteSpaces(iterator, end);
 
                                 if (iterator == end)
                                     throw ParseError{"Unexpected end of data"};
@@ -758,7 +758,7 @@ namespace xml
                             result.setValue(value);
                         }
 
-                        skipWhitespaces(iterator, end);
+                        skipWhiteSpaces(iterator, end);
 
                         if (iterator == end)
                             throw ParseError{"Unexpected end of data"};
@@ -786,7 +786,7 @@ namespace xml
 
                     result.setName(name);
 
-                    skipWhitespaces(iterator, end);
+                    skipWhiteSpaces(iterator, end);
 
                     if (iterator == end)
                         throw ParseError{"Unexpected end of data"};
@@ -817,7 +817,7 @@ namespace xml
 
                     for (;;)
                     {
-                        skipWhitespaces(iterator, end);
+                        skipWhiteSpaces(iterator, end);
 
                         if (iterator == end)
                             throw ParseError{"Unexpected end of data"};
@@ -839,11 +839,11 @@ namespace xml
 
                         const auto attribute = parseName(iterator, end);
 
-                        skipWhitespaces(iterator, end);
+                        skipWhiteSpaces(iterator, end);
 
                         expect(iterator, end, '=');
 
-                        skipWhitespaces(iterator, end);
+                        skipWhiteSpaces(iterator, end);
 
                         result[attribute] = parseString(iterator, end);
                     }
@@ -852,7 +852,7 @@ namespace xml
                     {
                         for (;;)
                         {
-                            if (!preserveWhitespaces) skipWhitespaces(iterator, end);
+                            if (!preserveWhiteSpaces) skipWhiteSpaces(iterator, end);
 
                             if (iterator == end)
                                 throw ParseError{"Unexpected end of data"};
@@ -873,7 +873,7 @@ namespace xml
                             else
                             {
                                 const auto node = parse(iterator, end,
-                                                        preserveWhitespaces,
+                                                        preserveWhiteSpaces,
                                                         preserveComments,
                                                         preserveProcessingInstructions,
                                                         false);
@@ -918,7 +918,7 @@ namespace xml
 
             static Node parse(std::u32string::const_iterator& iterator,
                               const std::u32string::const_iterator end,
-                              const bool preserveWhitespaces,
+                              const bool preserveWhiteSpaces,
                               const bool preserveComments,
                               const bool preserveProcessingInstructions,
                               const bool prologAllowed)
@@ -929,7 +929,7 @@ namespace xml
 
                 if (*iterator == '<')
                     return parseElement(iterator, end,
-                                        preserveWhitespaces,
+                                        preserveWhiteSpaces,
                                         preserveComments,
                                         preserveProcessingInstructions,
                                         prologAllowed);
@@ -939,33 +939,33 @@ namespace xml
         };
 
         return Parser::parse(begin, end,
-                             preserveWhitespaces,
+                             preserveWhiteSpaces,
                              preserveComments,
                              preserveProcessingInstructions);
     }
 
     inline Data parse(const char* data,
-                      const bool preserveWhitespaces = false,
+                      const bool preserveWhiteSpaces = false,
                       const bool preserveComments = false,
                       const bool preserveProcessingInstructions = false)
     {
         auto end = data;
         while (*end) ++end;
         return parse(data, end,
-                     preserveWhitespaces,
+                     preserveWhiteSpaces,
                      preserveComments,
                      preserveProcessingInstructions);
     }
 
     template <class T>
     Data parse(const T& data,
-               const bool preserveWhitespaces = false,
+               const bool preserveWhiteSpaces = false,
                const bool preserveComments = false,
                const bool preserveProcessingInstructions = false)
     {
         using std::begin, std::end; // add std::begin and std::end to lookup
         return parse(begin(data), end(data),
-                     preserveWhitespaces,
+                     preserveWhiteSpaces,
                      preserveComments,
                      preserveProcessingInstructions);
     }
