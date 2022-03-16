@@ -301,7 +301,7 @@ namespace xml
                 return fromUtf32(std::begin(text), std::end(text));
             }
 
-            static Data parse(const Iterator begin, const const Iterator end,
+            static Data parse(const Iterator begin, const Iterator end,
                               const bool preserveWhitespaces,
                               const bool preserveComments,
                               const bool preserveProcessingInstructions)
