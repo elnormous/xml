@@ -77,30 +77,30 @@ namespace xml
             return *this;
         }
 
-        Type getType() const noexcept { return type; }
+        [[nodiscard]] Type getType() const noexcept { return type; }
         void setType(const Type newType) noexcept { type = newType; }
 
-        auto begin() noexcept
+        [[nodiscard]] auto begin() noexcept
         {
             return children.begin();
         }
 
-        auto end() noexcept
+        [[nodiscard]] auto end() noexcept
         {
             return children.end();
         }
 
-        auto begin() const noexcept
+        [[nodiscard]] auto begin() const noexcept
         {
             return children.begin();
         }
 
-        auto end() const noexcept
+        [[nodiscard]] auto end() const noexcept
         {
             return children.end();
         }
 
-        const auto& operator[](const std::string_view attribute) const
+        [[nodiscard]] const auto& operator[](const std::string_view attribute) const
         {
             if (const auto iterator = attributes.find(attribute); iterator != attributes.end())
                 return iterator->second;
@@ -108,7 +108,7 @@ namespace xml
                 throw RangeError{"Invalid attribute"};
         }
 
-        auto& operator[](const std::string_view attribute) noexcept
+        [[nodiscard]] auto& operator[](const std::string_view attribute) noexcept
         {
             if (const auto iterator = attributes.find(attribute); iterator != attributes.end())
                 return iterator->second;
@@ -120,19 +120,19 @@ namespace xml
             }
         }
 
-        const auto& getChildren() const noexcept { return children; }
+        [[nodiscard]] const auto& getChildren() const noexcept { return children; }
         void pushBack(const Node& node) { children.push_back(node); }
 
-        const auto& getName() const noexcept { return name; }
+        [[nodiscard]] const auto& getName() const noexcept { return name; }
         void setName(const std::string_view newName) { name = newName; }
 
-        const auto& getExternalIdType() const noexcept { return externalIdType; }
+        [[nodiscard]] const auto& getExternalIdType() const noexcept { return externalIdType; }
         void setExternalIdType(const ExternalIdType newExternalIdType) { externalIdType = newExternalIdType; }
 
-        const auto& getValue() const noexcept { return value; }
+        [[nodiscard]] const auto& getValue() const noexcept { return value; }
         void setValue(const std::string_view newValue) { value = newValue; }
 
-        const auto& getAttributes() const noexcept { return attributes; }
+        [[nodiscard]] const auto& getAttributes() const noexcept { return attributes; }
         void setAttributes(const Attributes& newAttributes) { attributes = newAttributes; }
 
     private:
@@ -149,27 +149,27 @@ namespace xml
     public:
         Data() = default;
 
-        auto begin() noexcept
+        [[nodiscard]] auto begin() noexcept
         {
             return children.begin();
         }
 
-        auto end() noexcept
+        [[nodiscard]] auto end() noexcept
         {
             return children.end();
         }
 
-        auto begin() const noexcept
+        [[nodiscard]] auto begin() const noexcept
         {
             return children.begin();
         }
 
-        auto end() const noexcept
+        [[nodiscard]] auto end() const noexcept
         {
             return children.end();
         }
 
-        const auto& getChildren() const noexcept { return children; }
+        [[nodiscard]] const auto& getChildren() const noexcept { return children; }
         void pushBack(const Node& node) { children.push_back(node); }
 
     private:
@@ -190,6 +190,7 @@ namespace xml
         class Parser final
         {
         public:
+            [[nodiscard]]
             static std::u32string toUtf32(const Iterator begin, const Iterator end)
             {
                 std::u32string result;
@@ -236,7 +237,7 @@ namespace xml
                 return result;
             }
 
-            static std::string fromUtf32(const char32_t c)
+            [[nodiscard]] static std::string fromUtf32(const char32_t c)
             {
                 std::string result;
 
@@ -264,6 +265,7 @@ namespace xml
                 return result;
             }
 
+            [[nodiscard]]
             static std::string fromUtf32(const std::u32string::const_iterator begin,
                                          const std::u32string::const_iterator end)
             {
@@ -296,11 +298,12 @@ namespace xml
                 return result;
             }
 
-            static std::string fromUtf32(const std::u32string& text)
+            [[nodiscard]] static std::string fromUtf32(const std::u32string& text)
             {
                 return fromUtf32(std::begin(text), std::end(text));
             }
 
+            [[nodiscard]]
             static Data parse(const Iterator begin, const Iterator end,
                               const bool preserveWhiteSpaces,
                               const bool preserveComments,
@@ -351,6 +354,7 @@ namespace xml
             }
 
         private:
+            [[nodiscard]]
             static bool hasByteOrderMark(const Iterator begin, const Iterator end) noexcept
             {
                 // RFC-2781, 3.2 Byte order mark (BOM)
@@ -361,11 +365,13 @@ namespace xml
                 return true;
             }
 
+            [[nodiscard]]
             static constexpr bool isWhiteSpace(const char32_t c) noexcept
             {
                 return c == ' ' || c == '\t' || c == '\r' || c == '\n';
             }
 
+            [[nodiscard]]
             static constexpr bool isNameStartChar(const char32_t c) noexcept
             {
                 return (c >= 'a' && c <= 'z') ||
@@ -385,6 +391,7 @@ namespace xml
                     (c >= 0x10000 && c <= 0xEFFFF);
             }
 
+            [[nodiscard]]
             static constexpr bool isNameChar(const char32_t c) noexcept
             {
                 return isNameStartChar(c) ||
@@ -415,6 +422,7 @@ namespace xml
                 ++iterator;
             }
 
+            [[nodiscard]]
             static std::string parseName(std::u32string::const_iterator& iterator,
                                          const std::u32string::const_iterator end)
             {
@@ -437,6 +445,7 @@ namespace xml
                 return result;
             }
 
+            [[nodiscard]]
             static std::string parseReference(std::u32string::const_iterator& iterator,
                                               const std::u32string::const_iterator end)
             {
@@ -527,6 +536,7 @@ namespace xml
                 return result;
             }
 
+            [[nodiscard]]
             static std::string parseString(std::u32string::const_iterator& iterator,
                                            const std::u32string::const_iterator end)
             {
@@ -564,6 +574,7 @@ namespace xml
                 return result;
             }
 
+            [[nodiscard]]
             static Node parseDtdElement(std::u32string::const_iterator& iterator,
                                         const std::u32string::const_iterator end)
             {
@@ -613,6 +624,7 @@ namespace xml
                 return result;
             }
 
+            [[nodiscard]]
             static Node parseElement(std::u32string::const_iterator& iterator,
                                      const std::u32string::const_iterator end,
                                      const bool preserveWhiteSpaces,
@@ -889,6 +901,7 @@ namespace xml
                 return result;
             }
 
+            [[nodiscard]]
             static Node parseText(std::u32string::const_iterator& iterator,
                                   const std::u32string::const_iterator end)
             {
@@ -916,6 +929,7 @@ namespace xml
                 return result;
             }
 
+            [[nodiscard]]
             static Node parse(std::u32string::const_iterator& iterator,
                               const std::u32string::const_iterator end,
                               const bool preserveWhiteSpaces,
@@ -944,6 +958,7 @@ namespace xml
                              preserveProcessingInstructions);
     }
 
+    [[nodiscard]]
     inline Data parse(const char* data,
                       const bool preserveWhiteSpaces = false,
                       const bool preserveComments = false,
@@ -958,6 +973,7 @@ namespace xml
     }
 
     template <class T>
+    [[nodiscard]]
     Data parse(const T& data,
                const bool preserveWhiteSpaces = false,
                const bool preserveComments = false,
@@ -970,6 +986,7 @@ namespace xml
                      preserveProcessingInstructions);
     }
 
+    [[nodiscard]]
     inline std::string encode(const Data& data,
                               const bool whitespaces = false,
                               const bool byteOrderMark = false)
@@ -977,6 +994,7 @@ namespace xml
         class Encoder final
         {
         public:
+            [[nodiscard]] 
             static std::string encode(const Data& data, bool whitespaces, bool byteOrderMark)
             {
                 std::string result;
