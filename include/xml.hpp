@@ -114,7 +114,7 @@ namespace xml
                 return iterator->second;
             else
             {
-                const auto [newIterator, success] = attributes.insert(std::make_pair(attribute, std::string{}));
+                const auto [newIterator, success] = attributes.try_emplace(std::string{attribute});
                 (void)success;
                 return newIterator->second;
             }
