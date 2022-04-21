@@ -544,7 +544,7 @@ TEST_CASE("Range-based for loop for data")
 
         int counter = 0;
 
-        for (xml::Node& i : data)
+        for (const xml::Node& i : data)
             REQUIRE(i.getValue() == std::to_string(counter++));
 
         REQUIRE(counter == 2);
@@ -577,7 +577,7 @@ TEST_CASE("Range-based for loop for node")
 
         int counter = 0;
 
-        for (xml::Node& i : node)
+        for (const xml::Node& i : node)
             REQUIRE(i.getValue() == std::to_string(counter++));
 
         REQUIRE(counter == 2);
