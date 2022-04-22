@@ -165,6 +165,15 @@ TEST_CASE("Attributes", "[parsing]")
     REQUIRE(secondAttribute.second == "1\"<>");
 }
 
+TEST_CASE("New attribute", "[attributes]")
+{
+    xml::Node node;
+
+    node["test"] = "test";
+
+    REQUIRE(node["test"] == "test");
+}
+
 TEST_CASE("EntityReferences", "[parsing]")
 {
     const xml::Data d = xml::parse("<root test=\"&lt;\">&gt;&amp;&apos;&quot;</root>", true, true, true);
