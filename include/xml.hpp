@@ -586,9 +586,7 @@ namespace xml
 
                 Node result;
 
-                const auto type = parseName(iterator, end);
-
-                if (type == "ELEMENT")
+                if (const auto type = parseName(iterator, end); type == "ELEMENT")
                 {
                     result = Node::Type::element;
                 }
