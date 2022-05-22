@@ -962,9 +962,7 @@ namespace xml
                       const bool preserveComments = false,
                       const bool preserveProcessingInstructions = false)
     {
-        auto end = data;
-        while (*end) ++end;
-        return parse(data, end,
+        return parse(data, data + std::strlen(data),
                      preserveWhiteSpaces,
                      preserveComments,
                      preserveProcessingInstructions);
