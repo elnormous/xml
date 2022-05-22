@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cctype>
+#include <cstring>
 #include <map>
 #include <stdexcept>
 #include <string>
