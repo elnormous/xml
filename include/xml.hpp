@@ -15,13 +15,13 @@ namespace xml
     class ParseError final: public std::logic_error
     {
     public:
-        using std::logic_error::logic_error;
+        using logic_error::logic_error;
     };
 
     class RangeError final: public std::range_error
     {
     public:
-        using std::range_error::range_error;
+        using range_error::range_error;
     };
 
     using Attributes = std::map<std::string, std::string, std::less<>>;
